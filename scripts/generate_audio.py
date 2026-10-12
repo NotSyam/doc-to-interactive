@@ -1,220 +1,151 @@
 #!/usr/bin/env python3
 """
-Edge-TTS Audio Narration Generator for Interactive E-Learning Modules
-(doc-to-interactive skill standard component)
+generate_audio.py — Edge-TTS Audio Narration Generator for Doc-to-Interactive
 
-Generates high quality neural voice MP3 audio for course units:
-1. Reads narration scripts directly from content.json (per slide or top-level narration map).
-2. Single-Pass Phonetic Respelling Engine (Natural Indonesian & English terminology).
-3. Rhythmic Breath Punctuation (Natural pacing & pause between clauses).
-4. Relaxed Cadence Rate (-4% speed offset for optimal learning comprehension).
-5. Automatic fallback narration extractor if explicit narration is omitted in content.json.
+Reads narration scripts from a content.json (under the 'narration' key) or a
+standalone narration JSON file, and generates studio-quality neural MP3 audio
+files for each unit using Microsoft Edge-TTS.
+
+USAGE:
+  python scripts/generate_audio.py --content <path-to-content.json> [options]
+
+OPTIONS:
+  --content PATH        Path to content.json containing 'narration' block (or standalone narration JSON)
+  --output-dir PATH     Output folder for MP3 files (default: './audio')
+  --voice NAME          Voice preset: gadis, ardi, jenny, guy, or full Edge-TTS voice name
+                        (default: 'gadis' / id-ID-GadisNeural)
+  --rate RATE           Speech rate adjustment, e.g. '+0%', '+10%', '-5%' (default: '+0%')
+  --unit INDEX          Generate only a specific unit index (e.g. '--unit 0')
+
+EXAMPLES:
+  # Generate audio for all units using default Indonesian female voice
+  python scripts/generate_audio.py --content assets/sample.content.json
+
+  # Generate using authoritative male Indonesian voice to custom folder
+  python scripts/generate_audio.py --content assets/sample.content.json --voice ardi --output-dir ./dist/audio
 """
 
+import argparse
 import asyncio
+import json
 import os
 import sys
-import re
-import json
-import argparse
+from pathlib import Path
 
-VOICE_DEFAULT = "id-ID-ArdiNeural"  # Authoritative & Formal Corporate Voice (Alternative: id-ID-GadisNeural)
-RATE_DEFAULT = "-4%"                # Relaxed, clear pacing for training comprehension
+try:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
-# ============================================================================
-# COMPREHENSIVE PHONETIC RESPELLING DICTIONARY (INDONESIA - INGGRIS - KORPORAT)
-# ============================================================================
-PHONETIC_DICTIONARY = {
-    # Dokumen, Kode & Regulasi
-    "PP/SOP/E3-029": "Pe-Pe, Es-O-Pe, E-tiga strip nol dua sembilan",
-    "PP/WI/E3-024": "Pe-Pe, We-I, E-tiga strip nol dua puluh empat",
-    "PP/DIVHCM/W/001": "Pe-Pe, Divisi Ha-Se-Em, We strip nol nol satu",
-    "ISO 9001": "I-S-O sembilan ribu satu",
-    "ISO 27001": "I-S-O dua puluh tujuh ribu satu",
-    "ISO 37001": "I-S-O tiga puluh tujuh ribu satu",
-    "ISO 45001": "I-S-O empat puluh lima ribu satu",
-    "SK No.020": "Surat Keputusan nomor nol dua puluh",
 
-    # Corporate HCM, BUMN & Talenta
-    "Talent Mobility": "Telent Mobiliti",
-    "Talent Mobility Agreement": "Telent Mobiliti Egriment",
-    "Job Family": "Job Femili",
-    "Core Competency": "Kor Kompetensi",
-    "Core Competency Analysis": "Kor Kompetensi Analisis",
-    "Human Capital Management": "Hyumen Kepitel Menejmen",
-    "Human Capital": "Hyumen Kepitel",
-    "Corporate Learning": "Korporit Lerning",
-    "Learning Needs Diagnostic": "Lerning Nids Dayagnostik",
-    "Learning Design and Development": "Lerning Dizayn en Develomen",
-    "Learning Delivery and Deployment": "Lerning Deliveri en Diploymen",
-    "Development Needs Analysis": "Develomen Nids Analisis",
-    "Learning Blueprint": "Lerning Bluprint",
-    "Experiential Learning": "Eksperiensial Lerning",
-    "Business Process Owner": "Bisnis Proses Ouner",
-    "Project Manager": "Projek Menejer",
-    "General Manager": "Jeneral Menejer",
-    "Holding Company": "Holding Kompani",
-    "Due Diligence": "Dyu Dilijens",
-    "Annual Review": "Enyual Rivyu",
-    "Goal Plan": "Gol Plen",
-    "Key Performance Indicator": "Ki Performens Indikeytor",
-    "KPI": "Key-Pi-Ay",
-    "HCBP": "Ha-Se-Be-Pe",
-    "HCM": "Ha-Se-Em",
-    "LMS": "El-Em-Es",
-    "SIA": "Es-I-A",
-    "SiaPP": "Si-Ap",
-    "TMA": "Te-Em-A",
-    "SPT": "Es-Pe-Te",
-    "OJT": "O-Je-Te",
-    "SOP": "Es-O-Pe",
-    "WI": "We-I",
-    "TNA": "Ti-En-Ey",
-    "IDP": "Ay-Di-Pi",
-    "BOD": "Be-O-De",
-    "AP": "Anak Perusahaan",
-    "RACI": "Reysi",
-    "VRIO": "Vi-Ar-Ay-O",
-    "Uniform": "Yuniform",
-    "Unity": "Yuniti",
-    "Unique": "Yuniek",
-    "PDF": "Pe-De-Ef",
-    "9-Box": "Nain Boks",
-    "Nine Box": "Nain Boks"
+# Voice Presets
+VOICE_CHOICES = {
+    "gadis": "id-ID-GadisNeural",      # Female, Warm & Expressive (Indonesian)
+    "ardi": "id-ID-ArdiNeural",        # Male, Authoritative & Formal (Indonesian)
+    "jenny": "en-US-JennyNeural",      # Female, Natural & Engaging (English)
+    "guy": "en-US-GuyNeural",          # Male, Professional (English)
 }
 
-_SORTED_KEYS = sorted(PHONETIC_DICTIONARY.keys(), key=len, reverse=True)
-_REGEX_PATTERN = re.compile(
-    r'(?<![A-Za-z0-9])(' + '|'.join(re.escape(k) for k in _SORTED_KEYS) + r')(?![A-Za-z0-9])',
-    re.IGNORECASE
-)
-_LOOKUP_DICT = {k.lower(): v for k, v in PHONETIC_DICTIONARY.items()}
 
-def apply_phonetic_respelling(text: str) -> str:
-    """Transform abbreviations and foreign terms into clear Indonesian phonetics."""
-    if not text:
-        return ""
-    return _REGEX_PATTERN.sub(lambda m: _LOOKUP_DICT.get(m.group(0).lower(), m.group(0)), text)
-
-def clean_script_text(text: str) -> str:
-    """Strip HTML tags and normalize spacing for TTS engine."""
-    if not text:
-        return ""
-    # Strip HTML tags
-    t = re.sub(r'<[^>]+>', ' ', text)
-    # Strip Markdown symbols
-    t = re.sub(r'\*\*(.*?)\*\*', r'\1', t)
-    t = re.sub(r'\*(.*?)\*', r'\1', t)
-    t = re.sub(r'#+\s*', '', t)
-    # Normalize whitespace
-    t = re.sub(r'\s+', ' ', t).strip()
-    return t
-
-def extract_fallback_narration(slide_data, unit_data) -> str:
-    """Generate intelligent facilitator script when explicit narration is omitted."""
-    title = slide_data.get("heroTitle") or slide_data.get("title") or unit_data.get("title") or ""
-    lead = slide_data.get("heroLead") or slide_data.get("lead") or ""
-    
-    parts = []
-    if title:
-        parts.append(f"Materi {title}.")
-    if lead:
-        parts.append(lead)
-        
-    cards = slide_data.get("cards") or []
-    for c in cards:
-        ct = c.get("title", "")
-        cd = c.get("desc") or c.get("body") or ""
-        if ct:
-            parts.append(f"{ct}. {cd}")
-            
-    tabs = slide_data.get("tabs") or []
-    for tb in tabs:
-        parts.append(f"Bagian {tb.get('label', '')}.")
-        for item in tb.get("items", []):
-            if isinstance(item, str):
-                parts.append(item)
-            elif isinstance(item, dict):
-                parts.append(f"{item.get('t') or item.get('doc') or ''}. {item.get('d') or item.get('note') or ''}")
-                
-    steps = slide_data.get("steps") or []
-    for i, st in enumerate(steps):
-        parts.append(f"Langkah {st.get('number', i+1)}: {st.get('title', '')}. {st.get('desc', '')}")
-        
-    return " ".join(parts) or "Silakan pelajari materi interaktif yang disajikan pada layar."
-
-async def generate_unit_audio(unit_id, raw_script, output_path, voice, rate=RATE_DEFAULT, apply_phonetics=True):
+async def generate_unit_audio(unit_id: str, text: str, output_path: Path, voice: str, rate: str = "+0%"):
     import edge_tts
-    cleaned = clean_script_text(raw_script)
-    spoken_text = apply_phonetic_respelling(cleaned) if apply_phonetics else cleaned
-    
-    print(f"[*] Unit {unit_id} -> {output_path} ({len(spoken_text)} chars)...")
-    communicate = edge_tts.Communicate(spoken_text, voice, rate=rate)
-    await communicate.save(output_path)
-    print(f"    [OK] Saved Unit {unit_id}")
+    print(f"[*] Generating unit_{unit_id}.mp3 ({len(text)} chars) with voice='{voice}' (rate={rate})...")
+    communicate = edge_tts.Communicate(text, voice, rate=rate)
+    await communicate.save(str(output_path))
+    size_kb = output_path.stat().st_size / 1024
+    print(f"    ✓ Saved: {output_path} ({size_kb:.1f} KB)")
 
-async def main_async(args):
+
+async def run_generation(args):
     try:
         import edge_tts
     except ImportError:
-        print("[!] Error: 'edge-tts' package is not installed.")
-        print("    Install via: pip install edge-tts")
+        print("\n[!] Error: 'edge-tts' package is not installed.", file=sys.stderr)
+        print("    Install it via pip:   pip install edge-tts", file=sys.stderr)
+        print("    Or via uv:            uv pip install edge-tts\n", file=sys.stderr)
         sys.exit(1)
 
-    if not os.path.exists(args.content):
-        print(f"[!] Error: Content file '{args.content}' not found.")
+    content_path = Path(args.content).resolve()
+    if not content_path.exists():
+        print(f"[!] Error: File not found: {content_path}", file=sys.stderr)
         sys.exit(1)
 
-    with open(args.content, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        raw_data = json.loads(content_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"[!] Error parsing JSON {content_path}: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    slides = data.get("slides", [])
-    units = data.get("units", [])
-    course_narr = data.get("narration", {})
+    # Extract narrations: either from content.narration or top-level dict
+    if isinstance(raw_data, dict) and "narration" in raw_data and isinstance(raw_data["narration"], dict):
+        narrations = raw_data["narration"]
+    elif isinstance(raw_data, dict) and all(isinstance(v, str) for v in raw_data.values()):
+        narrations = raw_data
+    else:
+        print(f"[!] Error: No valid 'narration' dictionary found in {content_path}", file=sys.stderr)
+        print("    Expected schema: {\"narration\": {\"0\": \"text...\", \"1\": \"text...\"}}", file=sys.stderr)
+        sys.exit(1)
 
-    os.makedirs(args.output_dir, exist_ok=True)
+    if not narrations:
+        print(f"[!] Warning: 'narration' block is empty in {content_path}. Nothing to generate.", file=sys.stderr)
+        return
 
-    filter_units = [u.strip() for u in args.units.split(",")] if args.units else None
-    
-    total = len(slides)
-    print(f"[>] Generating audio for course ({total} units) using voice: {args.voice}, rate: {args.rate}")
+    # Determine voice
+    voice_key = args.voice.lower()
+    voice = VOICE_CHOICES.get(voice_key, args.voice)
 
-    for idx in range(total):
-        str_idx = str(idx)
-        if filter_units and str_idx not in filter_units:
+    # Output directory
+    out_dir = Path(args.output_dir).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Filter targets if single unit specified
+    if args.unit is not None:
+        unit_key = str(args.unit)
+        if unit_key not in narrations:
+            print(f"[!] Error: Unit index '{unit_key}' not found in narration keys: {list(narrations.keys())}", file=sys.stderr)
+            sys.exit(1)
+        targets = [(unit_key, narrations[unit_key])]
+    else:
+        targets = list(narrations.items())
+
+    print(f"\n🎙️ Doc-to-Interactive Audio Narration Builder")
+    print(f"=============================================")
+    print(f"Source JSON : {content_path.name}")
+    print(f"Output Dir  : {out_dir}")
+    print(f"Voice       : {voice}")
+    print(f"Speed Rate  : {args.rate}")
+    print(f"Total Units : {len(targets)}\n")
+
+    success_count = 0
+    for unit_id, text in targets:
+        clean_text = text.strip()
+        if not clean_text:
+            print(f"[!] Skipping unit_{unit_id}: empty narration text.")
             continue
+        out_file = out_dir / f"unit_{unit_id}.mp3"
+        try:
+            await generate_unit_audio(unit_id, clean_text, out_file, voice, args.rate)
+            success_count += 1
+        except Exception as e:
+            print(f"[!] Failed to generate unit_{unit_id}.mp3: {e}", file=sys.stderr)
 
-        slide = slides[idx] if idx < len(slides) else {}
-        unit = units[idx] if idx < len(units) else {}
+    print(f"\n✓ Completed: {success_count}/{len(targets)} audio files generated in {out_dir}")
 
-        # 1. Check slide.narration
-        script = slide.get("narration")
-        # 2. Check top-level narration map
-        if not script:
-            script = course_narr.get(str_idx) or course_narr.get(idx)
-        # 3. Fallback extraction
-        if not script:
-            script = extract_fallback_narration(slide, unit)
 
-        out_path = os.path.join(args.output_dir, f"unit_{idx}.mp3")
-        await generate_unit_audio(
-            unit_id=idx,
-            raw_script=script,
-            output_path=out_path,
-            voice=args.voice,
-            rate=args.rate,
-            apply_phonetics=(not args.disable_phonetics)
-        )
+def main():
+    parser = argparse.ArgumentParser(description="Doc-to-Interactive Edge-TTS Narration Generator")
+    parser.add_argument("--content", required=True, help="Path to content.json or narrations JSON file")
+    parser.add_argument("--output-dir", default="./audio", help="Directory where MP3 files will be saved (default: ./audio)")
+    parser.add_argument("--voice", default="gadis", help="Voice choice: gadis, ardi, jenny, guy, or custom voice string")
+    parser.add_argument("--rate", default="+0%", help="Speed rate modifier, e.g. +0%%, +10%%, -5%%")
+    parser.add_argument("--unit", default=None, help="Generate only a specific unit index (e.g. 0)")
+    args = parser.parse_args()
 
-    print("[SUCCESS] All requested audio files generated successfully!")
+    asyncio.run(run_generation(args))
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Edge-TTS Narration Audio Generator for doc-to-interactive")
-    parser.add_argument("--content", default="content.json", help="Path to content.json file")
-    parser.add_argument("--output-dir", default="audio", help="Directory where MP3 audio files will be saved")
-    parser.add_argument("--voice", default=VOICE_DEFAULT, help="Edge-TTS Voice ID (default: id-ID-ArdiNeural)")
-    parser.add_argument("--rate", default=RATE_DEFAULT, help="Speaking rate offset, e.g. -4%")
-    parser.add_argument("--units", default="", help="Comma-separated unit indices to generate, e.g. '0,1,5'")
-    parser.add_argument("--disable-phonetics", action="store_true", help="Disable Indonesian phonetic respelling")
-    args = parser.parse_args()
-    asyncio.run(main_async(args))
+    main()

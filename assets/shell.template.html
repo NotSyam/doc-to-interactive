@@ -776,6 +776,79 @@
     let gateTimerInterval = null;
 
     // ========================================================================
+    // SCORM 1.2 / 2004 RUNTIME WRAPPER (Graceful Fallback if standalone)
+    // ========================================================================
+    let scormAPI = null;
+    let scormVersion = null; // '1.2' | '2004'
+
+    function findSCORMAPI(win) {
+      let attempts = 0;
+      while ((!win.API && !win.API_1484_11) && (win.parent && win.parent !== win) && attempts < 10) {
+        attempts++;
+        win = win.parent;
+      }
+      return win.API_1484_11 || win.API || null;
+    }
+
+    function initSCORM() {
+      try {
+        scormAPI = findSCORMAPI(window);
+        if (scormAPI) {
+          if (typeof scormAPI.LMSInitialize === 'function') {
+            scormVersion = '1.2';
+            scormAPI.LMSInitialize("");
+            scormAPI.LMSSetValue("cmi.core.lesson_status", "incomplete");
+            scormAPI.LMSCommit("");
+          } else if (typeof scormAPI.Initialize === 'function') {
+            scormVersion = '2004';
+            scormAPI.Initialize("");
+            scormAPI.SetValue("cmi.completion_status", "incomplete");
+            scormAPI.Commit("");
+          }
+        }
+      } catch (e) {
+        console.warn("SCORM init warning:", e);
+      }
+    }
+
+    function recordSCORMProgress(score, isPassed) {
+      if (!scormAPI) return;
+      try {
+        if (scormVersion === '1.2') {
+          if (score != null) scormAPI.LMSSetValue("cmi.core.score.raw", String(score));
+          if (isPassed != null) {
+            scormAPI.LMSSetValue("cmi.core.lesson_status", isPassed ? "passed" : "failed");
+          }
+          scormAPI.LMSCommit("");
+        } else if (scormVersion === '2004') {
+          if (score != null) {
+            scormAPI.SetValue("cmi.score.raw", String(score));
+            scormAPI.SetValue("cmi.score.scaled", String((score / 100).toFixed(2)));
+          }
+          if (isPassed != null) {
+            scormAPI.SetValue("cmi.completion_status", isPassed ? "completed" : "incomplete");
+            scormAPI.SetValue("cmi.success_status", isPassed ? "passed" : "failed");
+          }
+          scormAPI.Commit("");
+        }
+      } catch (e) {
+        console.warn("SCORM update warning:", e);
+      }
+    }
+
+    function finishSCORM() {
+      if (!scormAPI) return;
+      try {
+        if (scormVersion === '1.2' && typeof scormAPI.LMSFinish === 'function') {
+          scormAPI.LMSFinish("");
+        } else if (scormVersion === '2004' && typeof scormAPI.Terminate === 'function') {
+          scormAPI.Terminate("");
+        }
+      } catch (e) {}
+    }
+
+
+    // ========================================================================
     // TACTILE WEB AUDIO API SYNTHESIZER
     // ========================================================================
     let audioCtx = null;
@@ -2444,6 +2517,9 @@
         playTone('error');
       }
 
+      // Sync progress to SCORM LMS runtime (if active)
+      recordSCORMProgress(state.quizScore, state.quizPassed);
+
       // ANTI-SPAM LOGIC:
       // Hanya sinkronkan ke Webhook jika LULUS (>= 80) ATAU kesempatan kuis habis (attempt ke-5)
       const shouldSyncWebhook = state.quizPassed || (state.quizAttemptCount >= maxAttempts);
@@ -3393,7 +3469,8 @@
     // ========================================================================
     // INITIALIZATION ON LOAD
     // ========================================================================
-window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", () => {
+      initSCORM();
       applyTheme();
       initCheatSheet();
       initTerminologi();
@@ -3407,6 +3484,10 @@ window.addEventListener("DOMContentLoaded", () => {
           if (state.lastFocusedElement) { try { state.lastFocusedElement.focus(); } catch (err) {} state.lastFocusedElement = null; }
         });
       });
+    });
+
+    window.addEventListener("beforeunload", () => {
+      finishSCORM();
     });
 
     function initCheatSheet() {
