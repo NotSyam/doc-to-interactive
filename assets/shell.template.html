@@ -1,0 +1,3076 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>__COURSE_TITLE__</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti for Celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              primary: '#2B73BD',       // Primary Blue
+              primaryHover: '#205c99',
+              secondary: '#5A89B8',     // Steel Blue
+              secondaryLight: '#7eabd9',
+              lightBlue: '#38BDF8',      // Vivid Sky Blue Accent
+              iceBg: '#F0F4F7',          // Soft Ice White Canvas
+              surfaceLight: '#FFFFFF',
+              borderLight: '#D9E3EA',
+              darkBg: '#09111E',        // Deep Slate Dark
+              darkSurface: '#111C2E',   // Slate Dark Surface
+              darkBorder: '#1F2F4A',
+              darkSubtle: '#16233B'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      line-height: 1;
+      user-select: none;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Custom Seekbar Slider (Blue & White) */
+    #seekBar {
+      --progress: 0%;
+      background: linear-gradient(to right, #2B73BD 0%, #2B73BD var(--progress), #cbd5e1 var(--progress), #e2e8f0 100%);
+    }
+    .dark #seekBar {
+      background: linear-gradient(to right, #38BDF8 0%, #38BDF8 var(--progress), #1F2F4A var(--progress), #111C2E 100%) !important;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: #2B73BD;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(43, 115, 189, 0.6);
+      border: 2px solid #ffffff;
+      transition: transform 0.12s ease;
+    }
+    .dark input[type=range]::-webkit-slider-thumb {
+      background: #38BDF8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(90, 137, 184, 0.35); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(43, 115, 189, 0.65); }
+
+    /* Micro-interactions */
+    .btn-tactile {
+      transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+    }
+    .btn-tactile:active {
+      transform: scale(0.96);
+    }
+    .hover-lift {
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(43, 115, 189, 0.1);
+    }
+
+    /* Pulse Glow */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(43, 115, 189, 0.5), 0 4px 12px rgba(43, 115, 189, 0.2); }
+      50% { box-shadow: 0 0 0 8px rgba(43, 115, 189, 0), 0 4px 16px rgba(43, 115, 189, 0.35); }
+    }
+    .btn-next-ready {
+      animation: pulseGlow 2.2s infinite;
+    }
+
+    /* Radar Pulse */
+    @keyframes radarPulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(43, 115, 189, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(43, 115, 189, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(43, 115, 189, 0); }
+    }
+    .animate-radar {
+      animation: radarPulse 2s infinite;
+    }
+
+    /* Slide transition */
+    .slide-enter {
+      animation: slideInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(6px) scale(0.996); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Responsive Sidebar Transitions */
+    #courseSidebar {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                  width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                  opacity 0.25s ease;
+    }
+
+    /* Light Theme (Blue & White Only) */
+    body:not(.dark) {
+      background-color: #F0F4F7 !important;
+      color: #1E293B !important;
+    }
+    body:not(.dark) #topHeader {
+      background-color: #FFFFFF !important;
+      border-color: #D9E3EA !important;
+    }
+    body:not(.dark) #courseSidebar {
+      background-color: #FFFFFF !important;
+      border-color: #D9E3EA !important;
+    }
+    body:not(.dark) #stageBackdrop {
+      background-color: #F0F4F7 !important;
+    }
+    body:not(.dark) #slideViewport {
+      background-color: #FFFFFF !important;
+      border-color: #D9E3EA !important;
+      box-shadow: 0 20px 25px -5px rgba(43, 115, 189, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    }
+    body:not(.dark) #bottomPlaybar {
+      background-color: #FFFFFF !important;
+      border-color: #D9E3EA !important;
+    }
+    body:not(.dark) #captionDock {
+      background-color: #FFFFFF !important;
+      border-color: #D9E3EA !important;
+    }
+    body:not(.dark) #captionText {
+      color: #1E293B !important;
+    }
+
+    /* Native HTML5 Dialog Backdrop */
+    dialog::backdrop {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Print to PDF Certificate Styles */
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body {
+        width: 297mm;
+        height: 210mm;
+        overflow: hidden !important;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #certificatePrintArea, #certificatePrintArea * {
+        visibility: visible;
+      }
+      #certificatePrintArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 297mm;
+        height: 210mm;
+        margin: 0;
+        padding: 15mm;
+        box-sizing: border-box;
+        background: white !important;
+        color: #000 !important;
+        display: flex !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body id="playerRoot" class="h-full w-full overflow-hidden flex flex-col font-sans bg-brand-darkBg text-slate-100 dark">
+  <audio id="playerAudio" preload="auto" class="hidden"></audio>
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP PLAYER BAR (Modern Shell Header)                                   -->
+  <!-- ========================================================================= -->
+  <header class="h-14 shrink-0 bg-brand-darkSurface border-b border-brand-darkBorder px-2.5 sm:px-4 flex items-center justify-between z-30 transition-colors duration-200 select-none" id="topHeader">
+    
+    <!-- Left: Sidebar Toggle, Logo Badge & Titles -->
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <button id="btnToggleSidebar" onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all flex items-center justify-center cursor-pointer" title="Buka/Tutup Menu Materi">
+        <span class="material-symbols-outlined text-[20px] shrink-0" id="sidebarToggleIcon">dock_to_left</span>
+      </button>
+
+      <div class="h-5 w-[1px] bg-slate-300 dark:bg-brand-darkBorder hidden sm:block" id="headerDivider"></div>
+
+      <!-- Course Branding & Title -->
+      <div class="flex items-center gap-2 sm:gap-2.5 truncate">
+        <img src="__COURSE_LOGO__" alt="__COURSE_LOGO_ALT__" class="h-8 w-auto object-contain shrink-0 dark:brightness-0 dark:invert transition-all" />
+        <div class="truncate">
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <span class="text-[10px] sm:text-[11px] font-extrabold uppercase font-mono px-2 py-0.5 rounded bg-brand-primary/15 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/30">
+              __COURSE_CODE__
+            </span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden lg:inline">__COURSE_EFFECTIVE_DATE__</span>
+          </div>
+          <h1 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate leading-tight tracking-tight" id="courseTitle">
+            __COURSE_TITLE_TEXT__
+          </h1>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Utility Action Tabs & Terminologi Menu -->
+    <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+      
+      <!-- CHEAT-SHEET TENGGAT & ANGKA -->
+      <button onclick="openTenggatModal()" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 text-[11px] font-bold transition-all cursor-pointer" title="Cheat-Sheet Angka & Tenggat Waktu SOP">
+        <span class="material-symbols-outlined text-sm shrink-0">schedule</span>
+        <span class="hidden md:inline">Tenggat & Angka</span>
+      </button>
+
+      <!-- MENU TERMINOLOGI (Poin 4 Definisi - Biru & Putih) -->
+      <button onclick="openTerminologiModal()" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/30 text-[11px] font-bold transition-all cursor-pointer" title="Kamus Terminologi & Definisi SOP (Poin 4)">
+        <span class="material-symbols-outlined text-sm shrink-0">menu_book</span>
+        <span class="hidden md:inline">Terminologi</span>
+        <span class="px-1.5 py-0.2 bg-brand-primary text-white text-[9px] rounded-full font-mono font-bold">7</span>
+      </button>
+
+      <!-- PETUNJUK / HINT NAVIGASI -->
+      <button onclick="openHintModal()" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-semibold transition-all cursor-pointer" title="Panduan Navigasi & Belajar">
+        <span class="material-symbols-outlined text-sm shrink-0">help_outline</span>
+        <span class="hidden sm:inline">Petunjuk</span>
+      </button>
+
+      <!-- TAB LAMPIRAN & RECORD -->
+      <button onclick="openSidebarTabMobile('resources')" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-semibold transition-all cursor-pointer" title="Dokumen Lampiran & Record SOP">
+        <span class="material-symbols-outlined text-sm text-brand-secondary shrink-0">folder_open</span>
+        <span class="hidden sm:inline">Lampiran</span>
+        <span class="px-1.5 py-0.2 bg-brand-secondary/20 text-brand-secondary text-[9px] rounded-full font-mono">11</span>
+      </button>
+
+      <div class="h-4 w-[1px] bg-slate-300 dark:bg-brand-darkBorder mx-0.5 hidden sm:block"></div>
+
+      <!-- THEME SWITCHER -->
+      <button id="btnThemeToggle" onclick="toggleTheme()" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-brand-darkSubtle text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-300 dark:border-brand-darkBorder transition-all cursor-pointer" title="Ganti Tema Tampilan">
+        <span class="material-symbols-outlined text-sm text-brand-primary dark:text-brand-lightBlue shrink-0" id="themeIcon">light_mode</span>
+        <span class="hidden xl:inline" id="themeLabel">Light</span>
+      </button>
+
+      <!-- FULLSCREEN TOGGLE -->
+      <button onclick="toggleFullscreen()" class="p-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer hidden sm:flex items-center justify-center" title="Layar Penuh (F11)">
+        <span class="material-symbols-outlined text-lg shrink-0">fullscreen</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MIDDLE WORKSPACE (Sidebar + Central 16:9 Stage Canvas)                 -->
+  <!-- ========================================================================= -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- BACKDROP OVERLAY UNTUK MOBILE SAAT SIDEBAR TERBUKA -->
+    <div id="sidebarBackdrop" onclick="closeSidebarMobile()" class="fixed inset-0 bg-slate-900/60 z-30 lg:hidden hidden transition-opacity duration-300"></div>
+
+    <!-- A. COLLAPSIBLE TABBED SIDEBAR (Responsive Mobile Drawer & Desktop Collapse) -->
+    <aside id="courseSidebar" class="fixed lg:relative top-14 lg:top-0 bottom-16 lg:bottom-0 left-0 w-72 sm:w-80 shrink-0 bg-brand-darkSurface border-r border-brand-darkBorder flex flex-col z-40 lg:z-20 overflow-hidden -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+      
+      <!-- Sidebar Tab Header Navigation -->
+      <div class="flex border-b border-brand-darkBorder bg-slate-100 dark:bg-brand-darkSubtle text-xs font-semibold shrink-0" id="sidebarTabHeader">
+        <button id="tabNavOutline" onclick="switchSidebarTab('outline')" class="flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-brand-primary dark:text-brand-lightBlue border-b-2 border-brand-primary dark:border-brand-lightBlue transition-all cursor-pointer">
+          <span class="material-symbols-outlined text-base shrink-0">format_list_bulleted</span>
+          <span>Menu</span>
+        </button>
+        <button id="tabNavNotes" onclick="switchSidebarTab('notes')" class="flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-b-2 border-transparent transition-all cursor-pointer">
+          <span class="material-symbols-outlined text-base shrink-0">notes</span>
+          <span>Transkrip</span>
+        </button>
+        <button id="tabNavResources" onclick="switchSidebarTab('resources')" class="flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-b-2 border-transparent transition-all cursor-pointer">
+          <span class="material-symbols-outlined text-base shrink-0">folder_open</span>
+          <span>Lampiran</span>
+        </button>
+      </div>
+
+      <!-- Tab Content 1: OUTLINE / MENU DAFTAR HALAMAN -->
+      <div id="tabContentOutline" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+        <div class="px-2 py-1 mb-1 flex items-center justify-between text-[11px] text-slate-400 uppercase tracking-wider font-bold">
+          <span>Daftar Materi</span>
+          <span id="badgeProgress" class="font-mono text-brand-primary dark:text-brand-lightBlue">1 / 12</span>
+        </div>
+        <nav id="outlineNavList" class="space-y-1">
+          <!-- Dynamically populated outline items -->
+        </nav>
+      </div>
+
+      <!-- Tab Content 2: TRANSKRIP / VERBATIM SCRIPT -->
+      <div id="tabContentNotes" class="flex-1 overflow-y-auto p-4 hidden space-y-3">
+        <div class="flex items-center gap-2 pb-2 border-b border-brand-darkBorder">
+          <span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-sm shrink-0">record_voice_over</span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Transkrip Narasi Audio</h3>
+        </div>
+        <div id="notesTextContainer" class="text-xs leading-relaxed text-slate-600 dark:text-slate-300 font-normal space-y-2">
+          <!-- Dynamically updated script -->
+        </div>
+      </div>
+
+      <!-- Tab Content 3: LAMPIRAN & RECORD REFERENSI -->
+      <div id="tabContentResources" class="flex-1 overflow-y-auto p-4 hidden space-y-3">
+        <div class="flex items-center gap-2 pb-2 border-b border-brand-darkBorder">
+          <span class="material-symbols-outlined text-brand-secondary text-sm shrink-0">download</span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Katalog Dokumen & Form</h3>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder">
+            <p class="font-bold text-slate-800 dark:text-white">__COURSE_CODE__</p>
+            <p class="text-[10px] text-slate-500">__COURSE_TITLE_TEXT__</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder">
+            <p class="font-bold text-slate-800 dark:text-white">__COURSE_CODE2__</p>
+            <p class="text-[10px] text-slate-500">SOP Pengawasan & Pengendalian Proyek Konstruksi</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder">
+            <p class="font-bold text-slate-800 dark:text-white">11 Formulir Standar (Lamp. 1-11)</p>
+            <p class="text-[10px] text-slate-500">__COURSE_RESOURCES_DESC__</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer: Progress Pill -->
+      <div class="p-3 border-t border-brand-darkBorder bg-slate-50 dark:bg-brand-darkSubtle shrink-0 flex items-center justify-between text-[11px]">
+        <span class="text-slate-500 dark:text-slate-400">Total Ketuntasan</span>
+        <span id="overallPercentage" class="font-mono font-bold text-brand-primary dark:text-brand-lightBlue">8%</span>
+      </div>
+    </aside>
+
+    <!-- B. CENTRAL STAGE CANVAS (Framed 16:9 Presentation Viewport - Exactly Centered) -->
+    <main class="flex-1 overflow-y-auto p-2 sm:p-4 lg:p-6 flex flex-col relative bg-brand-iceBg dark:bg-brand-darkBg transition-all duration-300" id="stageBackdrop">
+      
+      <!-- Slide Container (Framed Stage Viewport with m-auto) -->
+      <div id="slideViewport" class="w-full max-w-5xl bg-white dark:bg-brand-darkSurface text-slate-800 dark:text-slate-100 rounded-2xl shadow-xl border border-slate-200 dark:border-brand-darkBorder flex flex-col justify-between overflow-hidden relative min-h-[480px] sm:min-h-[540px] transition-all duration-300 m-auto">
+        
+        <!-- Slide Top Meta Bar -->
+        <div class="px-3.5 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-brand-darkSubtle border-b border-slate-200 dark:border-brand-darkBorder flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <span id="slideCategoryBadge" class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary dark:bg-brand-primary/20 dark:text-brand-lightBlue border border-brand-primary/30">
+              Pengantar Prosedur
+            </span>
+            <span class="text-slate-400">•</span>
+            <span id="slideTimerNotice" class="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs shrink-0">timer</span> Estimasi: <b id="lblSlideDuration">00:45</b>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Review Mode Toggle Pill -->
+            <button onclick="toggleDevGating()" id="previewModeBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/30 flex items-center gap-1 cursor-pointer" title="Mode Preview: Bebas navigasi tanpa kunci timer">
+              <span class="material-symbols-outlined text-xs shrink-0">lock_open_right</span>
+              <span class="hidden sm:inline">Review Mode</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Slide Dynamic Body Content (Scrollable if content overflows 16:9 canvas) -->
+        <div id="slideBody" class="p-3.5 sm:p-6 md:p-8 flex-1 flex flex-col justify-between overflow-y-auto slide-enter">
+          <!-- Rendered Slide Content -->
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- DOCKED CLOSED CAPTIONS STRIP (Storyline 360 Style)                       -->
+  <!-- ========================================================================= -->
+  <div id="captionDock" class="shrink-0 transition-all duration-300 overflow-hidden max-h-0 opacity-0 pointer-events-none bg-brand-darkSurface border-t border-brand-darkBorder z-20">
+    <div class="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="px-2 py-0.5 rounded bg-brand-primary/20 text-brand-lightBlue font-mono font-bold text-[10px] tracking-wider shrink-0 uppercase border border-brand-primary/30 flex items-center gap-1 shadow-sm">
+          <span class="material-symbols-outlined text-xs shrink-0">closed_caption</span>
+          <span>CC</span>
+        </span>
+        <p id="captionText" class="text-slate-700 dark:text-slate-200 font-medium leading-relaxed flex-1 text-xs overflow-y-auto max-h-16 pr-1">
+          Selamat datang di Modul SOP __COURSE_TITLE_TEXT__...
+        </p>
+      </div>
+      <button onclick="toggleCC()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all shrink-0">
+        <span class="material-symbols-outlined text-sm shrink-0">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. BOTTOM CONTROL BAR (Playbar Dock - Fully Operational & Mobile Ready)   -->
+  <!-- ========================================================================= -->
+  <footer class="h-16 shrink-0 bg-brand-darkSurface border-t border-brand-darkBorder px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 z-30 transition-colors duration-200" id="bottomPlaybar">
+    
+    <!-- Left Controls: Play/Pause, Replay, Timecode -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <!-- Play / Pause -->
+      <button id="btnPlayPause" onclick="togglePlay()" class="w-9 h-9 rounded-full bg-brand-primary hover:bg-brand-primaryHover text-white flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer" title="Putar / Jeda Narasi (Spacebar)">
+        <span class="material-symbols-outlined text-xl shrink-0" id="playIcon">play_arrow</span>
+      </button>
+
+      <!-- Replay Slide -->
+      <button id="btnReplay" onclick="replayAudio()" class="w-8 h-8 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-all cursor-pointer" title="Putar Ulang Slide Ini">
+        <span class="material-symbols-outlined text-lg shrink-0">replay</span>
+      </button>
+
+      <!-- Timecode Tracker -->
+      <div class="hidden md:flex items-center gap-1 font-mono text-xs text-slate-600 dark:text-slate-300 font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder" id="timecodeBox">
+        <span id="currentTimeLabel">00:00</span>
+        <span class="text-slate-400">/</span>
+        <span id="totalTimeLabel">00:45</span>
+      </div>
+    </div>
+
+    <!-- Center Controls: Interactive Scrubber Seekbar -->
+    <div class="flex-1 max-w-xl mx-2 sm:mx-4 flex items-center gap-2">
+      <div class="relative w-full flex items-center">
+        <input id="seekBar" type="range" min="0" max="100" value="0" step="0.5" oninput="onSeekChange(this.value)" 
+               class="w-full h-1.5 rounded-lg appearance-none cursor-pointer focus:outline-none" />
+      </div>
+    </div>
+
+    <!-- Right Controls: CC, Speed, Slide Counter, Prev/Next Navigation -->
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      
+      <!-- Closed Captions (CC) Toggle -->
+      <button id="btnCCToggle" onclick="toggleCC()" class="px-2 py-1 rounded-md text-[11px] font-extrabold uppercase font-mono tracking-wider transition-all bg-slate-100 dark:bg-brand-darkSubtle text-slate-600 dark:text-slate-400 hover:text-brand-primary dark:hover:text-white cursor-pointer" title="Nyalakan Subtitle (CC)">
+        CC
+      </button>
+
+      <!-- Playback Speed Toggle -->
+      <button id="btnSpeedToggle" onclick="cycleAudioSpeed()" class="px-2 py-1 rounded-md text-[11px] font-bold font-mono transition-all bg-slate-100 dark:bg-brand-darkSubtle text-slate-700 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white cursor-pointer" title="Atur Kecepatan Narasi">
+        1.0x
+      </button>
+
+      <!-- Slide Counter -->
+      <div class="hidden lg:flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 font-mono">
+        <span id="slideCounterText">Slide 1 / 12</span>
+      </div>
+
+      <!-- Navigation Prev Button -->
+      <button id="btnPrevSlide" onclick="goToPrevSlide()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-brand-darkSubtle hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed font-semibold text-xs flex items-center gap-1 transition-all cursor-pointer" title="Slide Sebelumnya (ArrowLeft)">
+        <span class="material-symbols-outlined text-sm shrink-0">chevron_left</span>
+        <span class="hidden sm:inline">Kembali</span>
+      </button>
+
+      <!-- Navigation Next Button -->
+      <button id="btnNextSlide" class="px-3 sm:px-4 py-1.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white disabled:opacity-40 disabled:cursor-not-allowed font-bold text-xs flex items-center gap-1 shadow-md transition-all active:scale-95 btn-next-ready cursor-pointer" title="Slide Berikutnya (ArrowRight)">
+        <span id="nextBtnText">Lanjut</span>
+        <span class="material-symbols-outlined text-sm shrink-0">chevron_right</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: CHEAT-SHEET TENGGAT & ANGKA KRITIS SOP                              -->
+  <!-- ========================================================================= -->
+  <dialog id="modalTenggat" class="m-auto rounded-2xl bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder max-w-3xl w-[92vw] max-h-[90vh] p-0 shadow-2xl text-slate-900 dark:text-white overflow-hidden">
+    <header class="p-4 sm:p-5 border-b border-slate-200 dark:border-brand-darkBorder flex items-center justify-between bg-sky-50 dark:bg-brand-darkSubtle">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-brand-primary text-white flex items-center justify-center shadow">
+          <span class="material-symbols-outlined text-xl shrink-0">schedule</span>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Cheat-Sheet: Angka & Tenggat Kritis SOP</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400">Rujukan Waktu & Persentase Baku (__COURSE_CODE__)</p>
+        </div>
+      </div>
+      <button onclick="closeTenggatModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 cursor-pointer">
+        <span class="material-symbols-outlined text-lg shrink-0">close</span>
+      </button>
+    </header>
+
+    <div class="max-h-[65vh] overflow-y-auto p-4 sm:p-6 space-y-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs" id="tenggatGrid">
+        <!-- Populated by initCheatSheet() from COURSE.tenggatCheatSheet -->
+      >
+    </div>
+
+    <footer class="p-3 px-5 border-t border-slate-200 dark:border-brand-darkBorder bg-slate-50 dark:bg-brand-darkSubtle flex items-center justify-between">
+      <span class="text-xs text-slate-500 font-medium">Kepatuhan Tenggat Waktu = Mitigasi Risiko Keterlambatan SAP</span>
+      <button onclick="closeTenggatModal()" class="px-4 py-1.5 rounded-lg bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-semibold cursor-pointer">
+        Tutup
+      </button>
+    </footer>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: TERMINOLOGI SOP (DEFINISI POIN 4)                                   -->
+  <!-- ========================================================================= -->
+  <dialog id="modalTerminologi" class="m-auto rounded-2xl bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder max-w-3xl w-[92vw] max-h-[90vh] p-0 shadow-2xl text-slate-900 dark:text-white overflow-hidden">
+    <!-- Header -->
+    <header class="p-4 sm:p-5 border-b border-slate-200 dark:border-brand-darkBorder flex items-center justify-between bg-brand-iceBg dark:bg-brand-darkSubtle">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-brand-primary text-white flex items-center justify-center shadow">
+          <span class="material-symbols-outlined text-xl shrink-0">menu_book</span>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Kamus Terminologi & Definisi SOP</h3>
+          <p class="text-xs text-slate-500">Rujukan Resmi Definisi Poin 4 (__COURSE_CODE__)</p>
+        </div>
+      </div>
+      <button onclick="closeTerminologiModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 cursor-pointer">
+        <span class="material-symbols-outlined text-lg shrink-0">close</span>
+      </button>
+    </header>
+
+    <!-- Search Input -->
+    <div class="p-3 sm:p-4 border-b border-slate-200 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-lg shrink-0">search</span>
+        <input id="searchTermInput" oninput="filterTerminologi(this.value)" type="search" placeholder="__GLOSSARY_SEARCH_PLACEHOLDER__" class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-brand-darkBorder bg-slate-50 dark:bg-brand-darkSubtle focus:outline-none focus:ring-2 focus:ring-brand-primary text-slate-900 dark:text-white" />
+      </div>
+    </div>
+
+    <!-- Terms List Container -->
+    <div id="terminologiContainer" class="max-h-[55vh] overflow-y-auto p-4 space-y-3">
+      <!-- Injected by renderTerminologiList() from COURSE.glossary -->
+    </div>
+
+    <!-- Modal Footer -->
+    <footer class="p-3 px-5 border-t border-slate-200 dark:border-brand-darkBorder bg-slate-50 dark:bg-brand-darkSubtle flex items-center justify-between">
+      <span class="text-xs text-slate-500 font-medium">Total 7 Terminologi Standar Prosedur</span>
+      <button onclick="closeTerminologiModal()" class="px-4 py-1.5 rounded-lg bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-semibold cursor-pointer">
+        Tutup
+      </button>
+    </footer>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: HINT & PANDUAN BELAJAR                                             -->
+  <!-- ========================================================================= -->
+  <dialog id="modalHint" class="m-auto rounded-2xl bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder max-w-md w-[92vw] p-6 shadow-2xl text-slate-900 dark:text-white">
+    <header class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2 text-brand-primary dark:text-brand-lightBlue">
+        <span class="material-symbols-outlined text-2xl shrink-0">help_outline</span>
+        <h3 class="font-bold text-base text-slate-900 dark:text-white">Panduan Navigasi & Belajar</h3>
+      </div>
+      <button onclick="closeHintModal()" class="p-1 rounded text-slate-400 hover:text-slate-600">
+        <span class="material-symbols-outlined shrink-0">close</span>
+      </button>
+    </header>
+
+    <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300" id="hintGrid">
+      <!-- Populated by initHintTips() from COURSE.hintTips -->
+    >
+
+    <footer class="mt-5 text-right">
+      <button onclick="closeHintModal()" class="px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-bold hover:bg-brand-primaryHover cursor-pointer">
+        Mengerti
+      </button>
+    </footer>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: HOTSPOT DETAIL ALUR PROSES (HALAMAN 2)                              -->
+  <!-- ========================================================================= -->
+  <dialog id="modalHotspot" class="m-auto rounded-2xl bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder max-w-xl w-[92vw] p-5 sm:p-6 shadow-2xl text-slate-900 dark:text-white max-h-[88vh]">
+    <header class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-brand-darkBorder">
+      <div class="flex items-center gap-2.5">
+        <div id="hotspotBadgeNum" class="w-8 h-8 rounded-lg bg-brand-primary text-white font-mono font-bold text-sm flex items-center justify-center shadow">
+          1
+        </div>
+        <div>
+          <span id="hotspotStepSub" class="text-[10px] font-bold uppercase tracking-wider text-brand-secondary font-mono">Tahap</span>
+          <h3 id="hotspotTitle" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">Detail Proses</h3>
+        </div>
+      </div>
+      <button onclick="closeHotspotModal()" class="p-1 rounded text-slate-400 hover:text-slate-600">
+        <span class="material-symbols-outlined shrink-0">close</span>
+      </button>
+    </header>
+
+    <div class="max-h-[60vh] overflow-y-auto py-3.5 space-y-3 text-xs text-slate-700 dark:text-slate-300">
+      <div>
+        <h4 class="font-bold text-slate-900 dark:text-white text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-brand-primary text-sm shrink-0">badge</span> Penanggung Jawab (Aktivitas PIC):
+        </h4>
+        <p id="hotspotPic" class="p-2 rounded-lg bg-slate-50 dark:bg-brand-darkSubtle font-semibold text-brand-primary dark:text-brand-lightBlue">Project Manager (PM) / GM Ops</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Input Dokumen</span>
+          <p id="hotspotInput" class="font-medium mt-0.5 text-slate-800 dark:text-slate-200">-</p>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Output Dokumen</span>
+          <p id="hotspotOutput" class="font-medium mt-0.5 text-brand-primary dark:text-brand-lightBlue font-semibold">-</p>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-slate-900 dark:text-white text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-brand-primary text-sm shrink-0">description</span> Ketentuan Umum & SOP Klausul:
+        </h4>
+        <div id="hotspotDescription" class="p-3 rounded-xl bg-blue-50/70 dark:bg-brand-darkSubtle/80 border border-blue-200 dark:border-brand-darkBorder text-slate-700 dark:text-slate-300 leading-relaxed space-y-1.5">
+          <!-- Dynamic hotspot description -->
+        </div>
+      </div>
+    </div>
+
+    <footer class="pt-3 border-t border-slate-200 dark:border-brand-darkBorder text-right">
+      <button onclick="closeHotspotModal()" class="px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-bold hover:bg-brand-primaryHover cursor-pointer">
+        Tutup Penjelasan
+      </button>
+    </footer>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- AREA CETAK SERTIFIKAT RESMI (A4 LANDSCAPE @media print)                   -->
+  <!-- ========================================================================= -->
+  <div id="certificatePrintArea" class="hidden">
+    <div class="w-full h-full border-8 border-double border-brand-primary p-8 flex flex-col justify-between text-center font-sans bg-white relative">
+      <div class="flex justify-between items-center border-b-2 border-slate-300 pb-4">
+        <div class="text-left">
+          <h2 class="text-2xl font-black tracking-wider text-brand-primary">__CERT_BRAND_NAME__</h2>
+          <p class="text-xs text-slate-500 font-medium">__CERT_DIVISION__</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-bold uppercase tracking-wider bg-blue-100 text-brand-primary px-3 py-1 rounded">__COURSE_CODE__</span>
+          <p class="text-xs text-slate-500 mt-1 font-mono" id="certNumberLabel">No. Reg: __CERT_REG_PREFIX__/2026/0000</p>
+        </div>
+      </div>
+
+      <div class="my-auto py-4">
+        <p class="text-xs font-semibold tracking-widest uppercase text-slate-400">SERTIFIKAT KELULUSAN RESMI E-LEARNING</p>
+        <p class="text-xs text-slate-500 mt-2">Diberikan secara sah kepada:</p>
+        <h1 class="text-3xl font-black text-slate-900 mt-1" id="certRecipientName">Peserta Pelatihan</h1>
+        <p class="text-xs font-mono font-semibold text-slate-600 mt-0.5" id="certRecipientNIP">NIP: - • __CERT_BRAND_NAME__</p>
+        
+        <div class="mt-4 max-w-xl mx-auto">
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Telah menyelesaikan seluruh modul dan dinyatakan <strong>LULUS UJI PEMAHAMAN (KOMPETEN)</strong> __CERT_TITLE__:
+          </p>
+          <p class="text-base font-extrabold text-brand-primary mt-1">
+            __COURSE_TITLE_TEXT__
+          </p>
+        </div>
+
+        <div class="mt-4 inline-block px-4 py-1.5 rounded-full bg-blue-50 border border-brand-primary/30 text-brand-primary font-bold text-xs">
+          Skor Pemahaman: <span id="certScoreVal">100</span>% • Lulus Evaluasi Pemahaman (Ambang Batas 80%)
+        </div>
+      </div>
+
+      <div class="flex justify-between items-end border-t border-slate-200 pt-4 text-xs text-slate-600">
+        <div class="text-left">
+          <p class="font-bold">Tanggal Kelulusan:</p>
+          <p id="certDateVal">5 Oktober 2026</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Sistem Autentikasi E-Learning HCM</p>
+        </div>
+        <div class="text-center">
+          <div class="w-32 border-b border-slate-400 pb-10 mx-auto"></div>
+          <p class="font-bold mt-1 text-slate-800">__CERT_SIGNATORY__</p>
+          <p class="text-[10px] text-slate-500">__CERT_BRAND_NAME__</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCRIPT ENGINE: DATA, LOGIC, QUIZ, AUDIO, FLOWCHART SWIMLANE              -->
+  <!-- ========================================================================= -->
+  <script>
+    // ========================================================================
+    // COURSE CONFIGURATION
+    // ========================================================================
+
+    // ========================================================================
+    // COURSE DATA — INJECTED AT BUILD TIME BY build_module.py
+    //
+    // The `COURSE` object shape is defined by:
+    //   assets/content.schema.json
+    //
+    // It contains:
+    //   course  — code, title, logo, effectiveDate, totalUnits, passingScore,
+    //             totalQuestions, devMode, defaultDark, enableGatingTimer
+    //   brand   — resolved brand profile (preset + inline overrides) applied
+    //             via build-time string placeholders in this very template.
+    //   units   — sidebar outline entries (title/subtitle/icon/duration/category)
+    //   slides  — array of slideDef objects, each with `type` discriminator +
+    //             type-specific fields (see references/slide_types.md).
+    //   glossary     — optional terminology entries for the Terminologi modal.
+    //   narration    — {slideIndex: transcriptString} for CC dock + Notes tab.
+    //   tenggatCheatSheet — optional quick-reference cards for Tenggat modal.
+    //   hintTips     — optional navigation tips for Petunjuk modal.
+    //   resources    — optional cards for sidebar Resources tab.
+    //
+    // build_module.py replaces the __COURSE_DATA_INJECTION_POINT__ marker below
+    // with `let COURSE = { ...content.json... };` — a single literal assignment.
+    // ========================================================================
+    let COURSE = null; // __COURSE_DATA_INJECTION_POINT__
+
+    // ========================================================================
+    // APP STATE PERSISTENCE
+    // ========================================================================
+    let state = {
+      currentSlide: 0,
+      completedSlides: new Set([0]),
+      isPlaying: false,
+      audioRate: 1.0,
+      participantName: '',
+      participantNIP: '',
+      participantJabatan: '',
+      participantDivisi: '',
+      userAnswers: {},
+      quizScore: 0,
+      quizCompleted: false,
+      quizIndex: 0,
+      quizOrder: null,
+      isDarkMode: true,
+      isMobileDrawerOpen: false,
+      isDesktopSidebarCollapsed: false,
+      selectedSwimlaneRole: "Semua",
+      participantName: "Peserta Pelatihan",
+      participantNIP: "-"
+    };
+
+    // ========================================================================
+    // TACTILE WEB AUDIO API SYNTHESIZER
+    // ========================================================================
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playTone(type) {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(650, now);
+          osc.frequency.exponentialRampToValueAtTime(320, now + 0.04);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'success') {
+          [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+            gain.gain.setValueAtTime(0.15, now + idx * 0.07);
+            gain.gain.linearRampToValueAtTime(0.01, now + idx * 0.07 + 0.12);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.07);
+            osc.stop(now + idx * 0.07 + 0.12);
+          });
+        } else if (type === 'error') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(130, now + 0.15);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'fanfare') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.09);
+            gain.gain.linearRampToValueAtTime(0.01, now + idx * 0.09 + 0.22);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.22);
+          });
+        }
+      } catch (e) {}
+    }
+
+    // ========================================================================
+    // AUDIO ENGINE WITH EDGE-TTS & SIMULATOR FALLBACK
+    // ========================================================================
+    const audioElement = document.getElementById("playerAudio") || new Audio();
+    audioElement.preload = "auto";
+
+    audioElement.addEventListener("timeupdate", () => {
+      if (audioElement.duration) {
+        const cur = audioElement.currentTime;
+        const dur = audioElement.duration;
+        const pct = (cur / dur) * 100;
+        updateSeekbarUI(pct, cur, dur);
+      }
+    });
+
+    audioElement.addEventListener("ended", () => {
+      state.isPlaying = false;
+      updatePlayButtonUI();
+      completeCurrentSlideTask();
+    });
+
+    let simTimer = null;
+    let simProgress = 0;
+    const simDuration = 45;
+
+    function togglePlay() {
+      playTone('click');
+      if (state.isPlaying) pauseAudio();
+      else startPlayAudio();
+    }
+
+    function startPlayAudio() {
+      state.isPlaying = true;
+      updatePlayButtonUI();
+      const audioPath = `./audio/unit_${state.currentSlide}.mp3`;
+      audioElement.src = audioPath;
+      audioElement.playbackRate = state.audioRate;
+      
+      audioElement.play().catch(() => {
+        clearInterval(simTimer);
+        simTimer = setInterval(() => {
+          if (!state.isPlaying) {
+            clearInterval(simTimer);
+            return;
+          }
+          simProgress += 1;
+          const pct = Math.min((simProgress / simDuration) * 100, 100);
+          updateSeekbarUI(pct, simProgress, simDuration);
+          if (simProgress >= simDuration) {
+            clearInterval(simTimer);
+            state.isPlaying = false;
+            updatePlayButtonUI();
+            completeCurrentSlideTask();
+          }
+        }, 1000);
+      });
+    }
+
+    function pauseAudio() {
+      state.isPlaying = false;
+      updatePlayButtonUI();
+      audioElement.pause();
+      clearInterval(simTimer);
+    }
+
+    function replayAudio() {
+      playTone('click');
+      simProgress = 0;
+      audioElement.currentTime = 0;
+      startPlayAudio();
+    }
+
+    function cycleAudioSpeed() {
+      playTone('click');
+      if (state.audioRate === 1.0) state.audioRate = 1.25;
+      else if (state.audioRate === 1.25) state.audioRate = 1.5;
+      else state.audioRate = 1.0;
+      
+      document.getElementById("btnSpeedToggle").innerText = state.audioRate.toFixed(1) + "x";
+      audioElement.playbackRate = state.audioRate;
+    }
+
+    function updatePlayButtonUI() {
+      const playIcon = document.getElementById("playIcon");
+      playIcon.innerText = state.isPlaying ? "pause" : "play_arrow";
+    }
+
+    function updateSeekbarUI(pct, curSec, durSec) {
+      const bar = document.getElementById("seekBar");
+      bar.value = pct;
+      bar.style.setProperty("--progress", pct + "%");
+
+      const formatTime = (s) => {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return `${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
+      };
+      document.getElementById("currentTimeLabel").innerText = formatTime(curSec);
+      document.getElementById("totalTimeLabel").innerText = formatTime(durSec);
+    }
+
+    function onSeekChange(val) {
+      const pct = parseFloat(val);
+      if (audioElement.duration) {
+        audioElement.currentTime = (pct / 100) * audioElement.duration;
+      } else {
+        simProgress = (pct / 100) * simDuration;
+      }
+      document.getElementById("seekBar").style.setProperty("--progress", pct + "%");
+    }
+
+    // ========================================================================
+    // SLIDE NAVIGATION & GATING CONTROLLER
+    // ========================================================================
+    function goToSlide(slideIndex) {
+      if (slideIndex < 0 || slideIndex >= COURSE.units.length) return;
+      
+      if (!COURSE.course.devMode && !state.completedSlides.has(slideIndex) && slideIndex > state.currentSlide + 1) {
+        playTone('error');
+        alert(`Halaman ini masih terkunci! Selesaikan materi Slide ${state.currentSlide + 1} terlebih dahulu.`);
+        return;
+      }
+
+      playTone('click');
+      pauseAudio();
+      simProgress = 0;
+      updateSeekbarUI(0, 0, 45);
+
+      state.currentSlide = slideIndex;
+      state.completedSlides.add(slideIndex);
+      
+      renderCurrentSlide();
+      updateNavigationControls();
+      updateOutlineUI();
+      updateTranscriptAndCC();
+
+      // Close mobile drawer after selecting
+      closeSidebarMobile();
+
+      // Scroll stage viewport back to top
+      document.getElementById("slideBody").scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToNextSlide() {
+      if (state.currentSlide < COURSE.units.length - 1) {
+        goToSlide(state.currentSlide + 1);
+      }
+    }
+
+    function goToPrevSlide() {
+      if (state.currentSlide > 0) {
+        goToSlide(state.currentSlide - 1);
+      }
+    }
+
+    function completeCurrentSlideTask() {
+      state.completedSlides.add(state.currentSlide);
+      COURSE.units[state.currentSlide].completed = true;
+      updateOutlineUI();
+      updateNavigationControls();
+    }
+
+    function toggleDevGating() {
+      playTone('click');
+      COURSE.course.devMode = !COURSE.course.devMode;
+      const badge = document.getElementById("previewModeBadge");
+      if (COURSE.course.devMode) {
+        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/30 flex items-center gap-1 cursor-pointer";
+        badge.innerHTML = `<span class="material-symbols-outlined text-xs shrink-0">lock_open_right</span><span class="hidden sm:inline">Review Mode</span>`;
+      } else {
+        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1 cursor-pointer";
+        badge.innerHTML = `<span class="material-symbols-outlined text-xs shrink-0">lock</span><span class="hidden sm:inline">Gated Mode</span>`;
+      }
+      updateNavigationControls();
+      updateOutlineUI();
+    }
+
+    function updateNavigationControls() {
+      const prevBtn = document.getElementById("btnPrevSlide");
+      const nextBtn = document.getElementById("btnNextSlide");
+      const counter = document.getElementById("slideCounterText");
+      const nextText = document.getElementById("nextBtnText");
+
+      counter.innerText = `Slide ${state.currentSlide + 1} / ${COURSE.units.length}`;
+      prevBtn.disabled = (state.currentSlide === 0);
+
+      if (state.currentSlide === COURSE.units.length - 1) {
+        const passed = state.quizCompleted && state.quizScore >= COURSE.course.passingScore;
+        if (passed) {
+          nextText.innerText = "Cetak Sertifikat";
+          nextBtn.onclick = () => printCertificate();
+          nextBtn.disabled = false;
+        } else {
+          nextText.innerText = "Selesai";
+          nextBtn.onclick = null;
+          nextBtn.disabled = true;
+        }
+      } else {
+        nextText.innerText = "Lanjut";
+        nextBtn.onclick = goToNextSlide;
+        nextBtn.disabled = false;
+      }
+    }
+
+    // ========================================================================
+    // SLIDE CONTENT RENDERER (12 SLIDES SESUAI SOP - BLUE & WHITE ONLY)
+    // ========================================================================
+    const UI = {
+      card: "rounded-2xl border border-slate-200 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSubtle",
+      label: "text-xs font-bold uppercase tracking-wider text-brand-primary dark:text-brand-lightBlue",
+      text: "text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300",
+      tabOn: "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-brand-primary text-white shadow-sm cursor-pointer",
+      tabOff: "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-brand-darkSubtle cursor-pointer"
+    };
+
+    function uiTitle(title, lead) {
+      return `
+        <header class="mb-4 sm:mb-5">
+          <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">${title}</h2>
+          ${lead ? `<p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">${lead}</p>` : ""}
+        </header>`;
+    }
+
+    function uiTabs(group, items) {
+      return `
+        <div class="inline-flex flex-wrap gap-1 p-1 rounded-xl bg-slate-100 dark:bg-brand-darkBg mb-4" role="tablist">
+          ${items.map((it, i) => `<button role="tab" id="tab-${group}-${it.key}" aria-controls="panel-${group}-${it.key}" aria-selected="${i === 0 ? 'true' : 'false'}" tabindex="${i === 0 ? '0' : '-1'}" data-tab-group="${group}" data-tab="${it.key}" onclick="switchTabGroup('${group}','${it.key}')" class="${i === 0 ? UI.tabOn : UI.tabOff}">${it.label}</button>`).join("")}
+        </div>`;
+    }
+
+    function switchTabGroup(group, key) {
+      playTone('click');
+      document.querySelectorAll(`[data-tab-group="${group}"]`).forEach(b => {
+        const isMatch = b.dataset.tab === key;
+        b.className = isMatch ? UI.tabOn : UI.tabOff;
+        b.setAttribute("aria-selected", isMatch ? "true" : "false");
+        b.setAttribute("tabindex", isMatch ? "0" : "-1");
+      });
+      document.querySelectorAll(`[data-panel-group="${group}"]`).forEach(p => {
+        const isMatch = p.dataset.panel === key;
+        p.classList.toggle("hidden", !isMatch);
+        p.setAttribute("role", "tabpanel");
+        p.id = `panel-${group}-${p.dataset.panel}`;
+        p.setAttribute("aria-labelledby", `tab-${group}-${p.dataset.panel}`);
+      });
+    }
+
+
+    function renderFlowNode(item) {
+      const fc = (COURSE.slides[state.currentSlide].flowCard) || {};
+      const c = fc[item.id] || { t: item.title };
+      const dec = !!item.isDecision;
+      const isRoleFilterActive = state.selectedSwimlaneRole && state.selectedSwimlaneRole !== 'Semua';
+      const matchesRole = !isRoleFilterActive || 
+        (item.actor && item.actor.includes(state.selectedSwimlaneRole)) || 
+        (item.actorRole && item.actorRole.includes(state.selectedSwimlaneRole));
+      
+      const roleCls = matchesRole ? "" : "opacity-35";
+      const highlightBorder = (isRoleFilterActive && matchesRole) ? "ring-2 ring-brand-primary" : "";
+
+      return `
+        <button onclick="openSwimlaneHotspot('${item.id}')" 
+          data-node-id="${item.id}"
+          data-actor="${item.actor || ''}"
+          data-actor-role="${item.actorRole || ''}"
+          class="flow-card-node group w-64 shrink-0 self-stretch text-left p-3.5 rounded-xl border-2 ${dec ? "border-sky-400 bg-sky-50 dark:bg-sky-950/40" : "border-slate-200 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface"} ${highlightBorder} ${roleCls} hover:border-brand-primary dark:hover:border-brand-lightBlue hover:shadow-md transition-all btn-tactile focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${dec ? "bg-sky-200 dark:bg-sky-900 text-sky-800 dark:text-sky-200" : "bg-slate-100 dark:bg-brand-darkSubtle text-slate-600 dark:text-slate-300"}">${dec ? "KEPUTUSAN" : item.step}</span>
+              <span class="role-badge text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-primary text-white ${isRoleFilterActive && matchesRole ? "" : "hidden"}">Peran Anda</span>
+              <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-brand-primary dark:group-hover:text-brand-lightBlue shrink-0">touch_app</span>
+            </div>
+            <p class="text-xs sm:text-sm font-bold leading-snug text-slate-900 dark:text-white">${c.t}</p>
+            ${c.branches ? `
+              <div class="mt-2.5 space-y-1.5 pt-2 border-t border-sky-200 dark:border-sky-900/60">
+                ${c.branches.map(b => `
+                  <div class="flex items-start gap-1.5 text-[11px] leading-snug p-1.5 rounded-lg bg-white/80 dark:bg-brand-darkSurface/80 border border-sky-200/60 dark:border-sky-900/40">
+                    <span class="inline-block px-1.5 py-0.5 rounded font-mono font-bold text-[10px] ${b[0].includes('>') || b[0].includes('Tidak') ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'} shrink-0">${b[0]}</span>
+                    <span class="text-slate-700 dark:text-slate-300 font-medium">${b[1]}</span>
+                  </div>`).join("")}
+              </div>` : ""}
+            ${c.out ? `<p class="mt-2 text-[11px] text-slate-500 dark:text-slate-400 truncate"><span class="font-semibold text-brand-secondary">Output:</span> ${c.out}</p>` : ""}
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-100 dark:border-brand-darkBorder/60 flex items-center justify-between">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue font-mono">${item.actor}</span>
+            <span class="text-[10px] text-brand-primary dark:text-brand-lightBlue font-semibold group-hover:underline">Buka Detail →</span>
+          </div>
+        </button>`;
+    }
+
+    // ========================================================================
+    // SLIDE CONTENT RENDERER (12 SLIDES SESUAI SOP - BLUE & WHITE LEAN)
+    // ========================================================================
+
+    // ========================================================================
+    // SLIDE CONTENT RENDERER (DATA-DRIVEN)
+    //
+    // `renderCurrentSlide()` looks up the slideDef for the current slide index
+    // in `COURSE.slides` and dispatches to a per-type renderer registered in
+    // the SLIDE_RENDERERS map. Each renderer is a pure function that takes a
+    // slideDef and returns an HTML string.
+    //
+    // To add a new slide type: write `renderYourType(slideDef)` and register
+    // it in the SLIDE_RENDERERS map at the bottom of this section.
+    // ========================================================================
+    function renderCurrentSlide() {
+      const body = document.getElementById("slideBody");
+      const catBadge = document.getElementById("slideCategoryBadge");
+      const durLabel = document.getElementById("lblSlideDuration");
+      body.className = "p-4 sm:p-6 md:p-8 flex-1 overflow-y-auto slide-enter";
+
+      const unit = COURSE.units[state.currentSlide];
+      const slideDef = COURSE.slides[state.currentSlide];
+
+      catBadge.innerText = slideDef.category || unit.category || "";
+      durLabel.innerText = unit.duration || "00:00";
+
+      const renderer = SLIDE_RENDERERS[slideDef.type];
+      if (!renderer) {
+        body.innerHTML = `<div class="p-8 text-center text-red-500">Unknown slide type: ${slideDef.type}. Available: ${Object.keys(SLIDE_RENDERERS).join(', ')}</div>`;
+        return;
+      }
+      body.innerHTML = renderer(slideDef);
+
+      // Post-render hooks per type
+      if (slideDef.type === 'treeCanvas') {
+        setTimeout(() => { initTreeCanvasPanZoom(); initScrollbarThumbDrag(); }, 50);
+      } else if (slideDef.type === 'quiz') {
+        // Reset quiz state when (re)entering quiz slide
+        state.quizSlideIndex = state.currentSlide;
+        ensureQuizOrder();
+        // Render quiz content INTO #quizContainer (which renderQuiz() created)
+        // — not into body, otherwise we destroy the #quizContainer wrapper.
+        const quizC = body.querySelector('#quizContainer') || body;
+        renderQuizSlide(quizC);
+      } else if (slideDef.type === 'scenarioPicker') {
+        // No-op: scenario picker verdicts are wired via inline onclick="runScenario('scnId','optId')"
+      } else if (slideDef.type === 'kpiDashboard') {
+        // No-op: calcAuditScore() wires itself via onchange="calcAuditScore()"
+      }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // SHARED UI HELPERS — UI const + uiTitle + uiTabs + switchTabGroup are
+    // defined in the original engine block above (lines 1601-1642 of source).
+    // We do NOT redefine them here to avoid duplicate-declaration errors.
+    // ────────────────────────────────────────────────────────────────────────
+    function esc(s) {
+      if (s == null) return "";
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 1: cover
+    // ────────────────────────────────────────────────────────────────────────
+    function renderCover(s) {
+      const reasons = (s.reasons || []).map(r => `
+        <div class="${UI.card} p-4 flex items-start gap-3">
+          <span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl mt-0.5 shrink-0">${r.icon || "info"}</span>
+          <div>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(r.title)}</p>
+            <p class="mt-1 ${UI.text}">${esc(r.desc)}</p>
+          </div>
+        </div>`).join("");
+      const skipTo = (typeof s.skipTo === "number") ? s.skipTo : 1;
+      return `
+        <div class="max-w-3xl mx-auto space-y-6">
+          <div class="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-brand-primary to-[#1F548E] text-white shadow-lg">
+            ${s.heroMeta ? `<div class="mb-2"><p class="text-xs font-semibold text-sky-200 tracking-wide font-mono">${esc(s.heroMeta)}</p></div>` : ""}
+            <h2 class="mt-1 text-2xl sm:text-3xl font-extrabold leading-tight">${esc(s.heroTitle)}</h2>
+            ${s.heroLead ? `<p class="mt-3 text-sm text-blue-100 leading-relaxed">${esc(s.heroLead)}</p>` : ""}
+          </div>
+          ${reasons ? `
+            <div>
+              <p class="${UI.label} mb-3">${esc(s.title || "Alasan Perubahan")}</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${reasons}</div>
+            </div>` : ""}
+          <div class="text-center pt-2">
+            <button onclick="goToSlide(${skipTo})" class="btn-next-ready inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-primary text-white font-bold shadow-lg btn-tactile hover:bg-brand-primaryHover">
+              <span class="material-symbols-outlined">${s.ctaIcon || "play_arrow"}</span>
+              <span>${esc(s.ctaLabel || "Mulai Pembelajaran")}</span>
+            </button>
+          </div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 2: cardList
+    // ────────────────────────────────────────────────────────────────────────
+    function renderCardList(s) {
+      const cols = s.columns || 1;
+      const gridCls = cols === 1 ? "grid grid-cols-1 gap-3" :
+                      cols === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" :
+                      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
+      const cards = (s.cards || []).map(c => `
+        <div class="${UI.card} p-4 ${cols === 1 ? 'flex items-start gap-3' : ''}">
+          ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl ${cols===1?'mt-0.5 shrink-0':''}">${c.icon}</span>` : ""}
+          <div class="${cols===1?'flex-1':''}">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
+            ${c.desc ? `<p class="mt-1 ${UI.text}">${esc(c.desc)}</p>` : ""}
+            ${c.body ? `<div class="mt-2 ${UI.text}">${c.body}</div>` : ""}
+            ${c.tags && c.tags.length ? `<div class="mt-2 flex flex-wrap gap-1">${c.tags.map(t => `<span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue font-mono">${esc(t)}</span>`).join("")}</div>` : ""}
+          </div>
+        </div>`).join("");
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          <div class="${gridCls}">${cards}</div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 3: treeCanvas — AUTHENTIC 3-column layout (Input | Aktivitas | Output)
+    // Each swimlaneData entry is a "phase container" (#fase-N). Each item
+    // inside becomes a row: left input box → center node button → right output
+    // box, with down-arrow connectors between rows. Decision items render
+    // their branches inline inside the center column.
+    // Hotspot modal + role filter + pan/zoom handled by existing engine.
+    // ────────────────────────────────────────────────────────────────────────
+    function renderTreeCanvas(s) {
+      const roleOptions = s.roleFilterOptions || ["Semua"];
+      const phases = s.swimlaneData || [];
+      const fc = s.flowCard || {};
+
+      // Column header
+      const colHeader = `
+        <div class="grid grid-cols-12 gap-4 pb-2 border-b-2 border-brand-primary/40 text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+          <div class="col-span-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center font-mono">1</span>
+            <span>Dokumen Input</span>
+          </div>
+          <div class="col-span-6 text-center flex items-center justify-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-brand-primary text-white flex items-center justify-center font-mono">2</span>
+            <span>Aktivitas & Bagan Alir Keputusan</span>
+          </div>
+          <div class="col-span-3 text-right flex items-center justify-end gap-2">
+            <span>Dokumen Output</span>
+            <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-mono">3</span>
+          </div>
+        </div>`;
+
+      // Phase containers
+      const phaseContainers = phases.map((phase, phaseIdx) => {
+        const items = phase.items || [];
+        const phaseId = s.phaseJumps && s.phaseJumps[phaseIdx] 
+          ? s.phaseJumps[phaseIdx].id 
+          : `fase-${phaseIdx + 1}`;
+
+        const rows = items.map((item, itemIdx) => {
+          const isLast = itemIdx === items.length - 1;
+          const cardData = fc[item.id] || { t: item.title };
+          const isDecision = !!item.isDecision || !!(cardData.branches);
+          const actorColor = item.actorColor || 'bg-brand-primary text-white';
+
+          // Input box
+          const inputBox = `
+            <div class="col-span-3">
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-brand-darkSubtle border border-slate-200 dark:border-brand-darkBorder text-xs text-slate-700 dark:text-slate-300">
+                <span class="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Input:</span>
+                <p class="font-semibold text-slate-800 dark:text-slate-200">${esc((item.inputs || []).join(' • ') || '—')}</p>
+              </div>
+            </div>`;
+
+          // Center node
+          const branches = cardData.branches ? `
+            <div class="mt-2 space-y-1.5 pt-2 border-t border-sky-200 dark:border-sky-900/60">
+              ${cardData.branches.map(b => `
+                <div class="flex items-start gap-1.5 text-[11px] leading-snug p-1.5 rounded-lg bg-white/80 dark:bg-brand-darkSurface/80 border border-sky-200/60 dark:border-sky-900/40">
+                  <span class="inline-block px-1.5 py-0.5 rounded font-mono font-bold text-[10px] ${(b[0].match(/[T<>]/) || b[0].toLowerCase().includes('tidak')) ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'} shrink-0">${esc(b[0])}</span>
+                  <span class="text-slate-700 dark:text-slate-300 font-medium">${esc(b[1])}</span>
+                </div>`).join("")}
+            </div>` : '';
+
+          const centerNode = `
+            <div class="col-span-6 flex flex-col items-center">
+              <button onclick="openSwimlaneHotspot('${esc(item.id)}')"
+                data-actor="${esc(item.actor || '')}"
+                data-actor-role="${esc(item.actorRole || '')}"
+                class="flow-card-node group w-80 text-center p-3 rounded-2xl border-2 ${isDecision ? 'border-sky-400 bg-sky-50/80 dark:bg-sky-950/40' : 'border-brand-primary bg-blue-50/80 dark:bg-brand-primary/15'} hover:shadow-lg transition-all btn-tactile cursor-pointer">
+                <div class="flex items-center justify-between gap-1 mb-1">
+                  <span class="px-2 py-0.5 rounded ${actorColor} font-mono font-bold text-[10px]">${esc(item.actor || '—')}</span>
+                  <span class="text-[10px] font-mono text-slate-500">${esc(item.step)}</span>
+                </div>
+                <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-tight">${esc(cardData.t || item.title)}</h4>
+                ${item.actorRole ? `<p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">${esc(item.actorRole)}</p>` : ''}
+                ${branches}
+              </button>
+            </div>`;
+
+          // Output box
+          const outputBox = cardData.branches ? `
+            <div class="col-span-3">
+              <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-slate-700 dark:text-slate-300">
+                <span class="text-[10px] font-bold uppercase text-amber-600 block mb-0.5">Cabang Keputusan:</span>
+                <p class="font-semibold text-amber-800 dark:text-amber-300">${esc(cardData.branches.length)} cabang</p>
+                <p class="text-[10px] text-amber-600 dark:text-amber-400 mt-1">Lihat detail di kartu proses</p>
+              </div>
+            </div>` : `
+            <div class="col-span-3">
+              <div class="p-3 rounded-xl bg-blue-50 dark:bg-brand-primary/10 border border-blue-200 dark:border-brand-primary/30 text-xs text-slate-700 dark:text-slate-300">
+                <span class="text-[10px] font-bold uppercase text-brand-primary block mb-0.5">Output Wajib:</span>
+                <p class="font-bold text-brand-primary dark:text-brand-lightBlue">${esc(cardData.out || (item.outputs || []).join(' • ') || '—')}</p>
+              </div>
+            </div>`;
+
+          const row = `
+            <div class="grid grid-cols-12 gap-4 items-center">
+              ${inputBox}
+              ${centerNode}
+              ${outputBox}
+            </div>`;
+
+          // Down-arrow connector between rows
+          const connector = isLast ? '' : `
+            <div class="flex justify-center -my-2 text-brand-primary">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="2" x2="12" y2="22"></line>
+                <polyline points="18 16 12 22 6 16"></polyline>
+              </svg>
+            </div>`;
+
+          return row + connector;
+        }).join('');
+
+        // Phase klausul range
+        const firstStep = (items[0] && items[0].step) || '';
+        const lastStep = (items[items.length-1] && items[items.length-1].step) || '';
+        const klausul = (firstStep && lastStep && firstStep !== lastStep)
+          ? `Klausul ${firstStep} – ${lastStep}`
+          : (firstStep ? `Klausul ${firstStep}` : '');
+
+        return `
+          <div id="${phaseId}" class="rounded-3xl p-6 bg-white/70 dark:bg-brand-darkSurface/70 border border-slate-200 dark:border-brand-darkBorder shadow-sm space-y-6">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-brand-darkBorder">
+              <span class="px-3 py-1 rounded-xl bg-brand-primary text-white text-xs font-bold font-mono tracking-wider">${esc(phase.section || 'FASE ' + (phaseIdx+1))}</span>
+              ${klausul ? `<span class="text-xs text-slate-500 font-semibold font-mono">${klausul}</span>` : ''}
+            </div>
+            ${rows}
+          </div>`;
+      }).join('');
+
+      // Phase jump buttons
+      const jumps = s.phaseJumps || phases.map((p, i) => ({ id: `fase-${i+1}`, label: p.section || `Fase ${i+1}` }));
+
+      return `
+        <div class="max-w-6xl mx-auto space-y-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <p class="${UI.label}">Alur Proses</p>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(s.title || "Tree Diagram")}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <select id="swimlaneRoleFilter" onchange="filterSwimlaneRole(this.value)" class="text-xs rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface px-2 py-1">
+                ${roleOptions.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div class="relative w-full h-[640px] sm:h-[700px] rounded-2xl border-2 border-slate-200 dark:border-brand-darkBorder bg-[#F8FAFC] dark:bg-[#070D18] overflow-hidden shadow-inner select-none cursor-grab active:cursor-grabbing" id="treeCanvasViewport">
+            <div class="absolute top-2 left-2 right-2 flex items-center justify-between gap-2 z-10 pointer-events-none">
+              <div class="flex gap-1 pointer-events-auto flex-wrap">
+                ${jumps.map((p, i) => `<button id="btnJumpFase${i+1}" onclick="jumpToPhase('${esc(p.id)}')" class="text-[10px] font-bold px-2 py-1 rounded-md bg-white/90 dark:bg-brand-darkSurface/90 border border-slate-200 dark:border-brand-darkBorder text-slate-600 dark:text-slate-300 hover:bg-brand-primary hover:text-white">${esc(p.label)}</button>`).join("")}
+              </div>
+              <span id="treeCurrentPhaseText" class="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-brand-darkSurface/80 px-2 py-1 rounded">—</span>
+            </div>
+            <div class="absolute bottom-2 right-2 flex flex-col gap-1 z-10">
+              <button onclick="zoomInCanvas()" class="w-8 h-8 rounded-lg bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle" title="Zoom In"><span class="material-symbols-outlined text-base">add</span></button>
+              <button onclick="zoomOutCanvas()" class="w-8 h-8 rounded-lg bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle" title="Zoom Out"><span class="material-symbols-outlined text-base">remove</span></button>
+              <button onclick="resetCanvasZoom()" class="w-8 h-8 rounded-lg bg-white dark:bg-brand-darkSurface border border-slate-200 dark:border-brand-darkBorder flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle" title="Reset"><span class="material-symbols-outlined text-base">center_focus_strong</span></button>
+            </div>
+            <div id="treeCanvasInner" class="absolute origin-top-left p-8 transition-transform duration-75" style="transform: translate(0px, 0px) scale(1);">
+              <div class="w-[1100px] space-y-10">
+                ${colHeader}
+                ${phaseContainers}
+              </div>
+            </div>
+            <div id="treeScrollTrack" class="absolute right-1 top-12 bottom-12 w-1 bg-slate-200/50 dark:bg-brand-darkBorder/50 rounded-full hidden md:block">
+              <div id="treeScrollThumb" class="absolute left-0 right-0 top-0 h-12 bg-brand-primary/60 dark:bg-brand-lightBlue/60 rounded-full cursor-pointer"></div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+            <button onclick="scrollTreeStep('up')" class="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-brand-darkSubtle"><span class="material-symbols-outlined text-sm">arrow_upward</span></button>
+            <span id="treeZoomLabel">100%</span>
+            <button onclick="scrollTreeStep('down')" class="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-brand-darkSubtle"><span class="material-symbols-outlined text-sm">arrow_downward</span></button>
+          </div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 4: scenarioPicker — generic dispatcher
+    // ────────────────────────────────────────────────────────────────────────
+    function renderScenarioPicker(s) {
+      const cards = (s.cards || []).map(c => `
+        <div class="${UI.card} p-4 flex items-start gap-3">
+          ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl mt-0.5 shrink-0">${c.icon}</span>` : ""}
+          <div>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
+            ${c.desc ? `<p class="mt-1 ${UI.text}">${esc(c.desc)}</p>` : ""}
+          </div>
+        </div>`).join("");
+      const scenarios = (s.scenarios || []).map(sc => `
+        <div class="${UI.card} p-4 space-y-3">
+          <div>
+            <p class="${UI.label}">${esc(sc.label || sc.id)}</p>
+            ${sc.title ? `<p class="mt-1 text-sm font-bold text-slate-900 dark:text-white">${esc(sc.title)}</p>` : ""}
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${sc.options.map(o => `<button onclick="runScenario('${esc(sc.id)}','${esc(o.id)}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-700 dark:text-slate-300 hover:border-brand-primary dark:hover:border-brand-lightBlue btn-tactile">${esc(o.label)}</button>`).join("")}
+          </div>
+          <div id="scenarioResult_${esc(sc.id)}" class="hidden mt-2 p-3 rounded-lg border text-xs leading-relaxed"></div>
+        </div>`).join("");
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${s.infoBanner ? `<div class="p-3 rounded-xl bg-blue-50 dark:bg-brand-primary/10 border border-brand-primary/30 text-xs sm:text-sm text-brand-primary dark:text-brand-lightBlue">${s.infoBanner}</div>` : ""}
+          ${cards ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${cards}</div>` : ""}
+          ${scenarios}
+        </div>`;
+    }
+
+    function runScenario(scenarioId, optionId) {
+      playTone('click');
+      const slideDef = COURSE.slides[state.currentSlide];
+      const sc = (slideDef.scenarios || []).find(x => x.id === scenarioId);
+      if (!sc) return;
+      const opt = (sc.options || []).find(x => x.id === optionId);
+      if (!opt) return;
+      const panel = document.getElementById(`scenarioResult_${scenarioId}`);
+      if (!panel) return;
+      panel.classList.remove('hidden');
+      const toneCls = {
+        positive: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-300',
+        negative: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-300',
+        neutral: 'bg-slate-50 dark:bg-brand-darkSubtle border-slate-200 dark:border-brand-darkBorder text-slate-700 dark:text-slate-300'
+      }[opt.tone || 'neutral'];
+      panel.className = `mt-2 p-3 rounded-lg border text-xs leading-relaxed ${toneCls}`;
+      panel.innerHTML = opt.verdict;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 5: tabbedAccordion
+    // ────────────────────────────────────────────────────────────────────────
+    function renderTabbedAccordion(s) {
+      const tabs = s.tabs || [];
+      if (!tabs.length) return `<div class="p-8 text-center text-slate-500">No tabs defined.</div>`;
+      const tabHeaders = uiTabs(s.tabs[0].key + '_group', tabs); // group id derived from first tab key
+      // Actually use a stable group id
+      const groupId = 'tba_' + state.currentSlide;
+      const tabHeadersHtml = `
+        <div class="inline-flex flex-wrap gap-1 p-1 rounded-xl bg-slate-100 dark:bg-brand-darkBg mb-4" role="tablist">
+          ${tabs.map((it, i) => `<button role="tab" id="tab-${groupId}-${it.key}" aria-controls="panel-${groupId}-${it.key}" aria-selected="${i === 0 ? 'true' : 'false'}" tabindex="${i === 0 ? '0' : '-1'}" data-tab-group="${groupId}" data-tab="${it.key}" onclick="switchTabGroup('${groupId}','${it.key}')" class="${i === 0 ? UI.tabOn : UI.tabOff}">${esc(it.label)}</button>`).join("")}
+        </div>`;
+      const panels = tabs.map((tb, i) => {
+        const items = (tb.items || []).map(it => {
+          if (typeof it === 'string') {
+            return `<li class="flex items-start gap-2 ${UI.text}"><span class="text-brand-primary dark:text-brand-lightBlue mt-0.5">•</span><span>${esc(it)}</span></li>`;
+          }
+          return `<li class="p-3 rounded-lg border border-slate-100 dark:border-brand-darkBorder/60"><p class="text-sm font-bold text-slate-900 dark:text-white">${esc(it.t)}</p>${it.d ? `<p class="mt-1 ${UI.text}">${esc(it.d)}</p>` : ""}</li>`;
+        }).join("");
+        return `<ol data-panel-group="${groupId}" data-panel="${tb.key}" class="${i === 0 ? '' : 'hidden'} space-y-2 list-none" role="tabpanel">${items}</ol>`;
+      }).join("");
+      const check = (s.checklist && s.checklist.length) ? `
+        ${s.checklist.map(ch => `<details class="mt-4"><summary class="cursor-pointer text-xs font-bold text-brand-primary dark:text-brand-lightBlue">${esc(ch.label)}</summary><ul class="mt-2 space-y-1 list-disc list-inside ${UI.text}">${(ch.items || []).map(it => `<li>${esc(it)}</li>`).join("")}</ul></details>`).join("")}
+      ` : "";
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${tabHeadersHtml}
+          ${panels}
+          ${check}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 6: verificationMatrix
+    // ────────────────────────────────────────────────────────────────────────
+    function renderVerificationMatrix(s) {
+      const tabs = s.tabs || [];
+      if (!tabs.length) return `<div class="p-8 text-center text-slate-500">No verification tabs defined.</div>`;
+      const groupId = 'verif_' + state.currentSlide;
+      const tabHeadersHtml = `
+        <div class="inline-flex flex-wrap gap-1 p-1 rounded-xl bg-slate-100 dark:bg-brand-darkBg mb-4" role="tablist">
+          ${tabs.map((it, i) => `<button role="tab" data-tab-group="${groupId}" data-tab="${it.key}" onclick="switchTabGroup('${groupId}','${it.key}')" class="${i === 0 ? UI.tabOn : UI.tabOff}">${esc(it.label)}</button>`).join("")}
+        </div>`;
+      const panels = tabs.map((tb, i) => {
+        const defaultPic = tb.defaultPic || "—";
+        const rows = (tb.items || []).map(r => {
+          const pic = r.pic || defaultPic;
+          if (r.noInfo) {
+            return `<li class="flex items-center justify-between gap-3 py-2 border-b border-slate-100 dark:border-brand-darkBorder/60 last:border-0">
+              <span class="text-sm text-slate-700 dark:text-slate-200">${esc(r.doc)}</span>
+              <span class="text-[10px] font-mono px-2 py-1 rounded bg-slate-100 dark:bg-brand-darkSubtle text-slate-500 dark:text-slate-400">${esc(pic)}</span>
+            </li>`;
+          }
+          return `<li class="py-2 border-b border-slate-100 dark:border-brand-darkBorder/60 last:border-0">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">${esc(r.doc)}</span>
+              <span class="text-[10px] font-mono px-2 py-1 rounded bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue">${esc(pic)}</span>
+            </div>
+            ${r.note ? `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">${esc(r.note)}</p>` : ""}
+          </li>`;
+        }).join("");
+        return `<ul data-panel-group="${groupId}" data-panel="${tb.key}" class="${i === 0 ? '' : 'hidden'} divide-y divide-slate-100 dark:divide-brand-darkBorder" role="tabpanel">${rows}</ul>`;
+      }).join("");
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${tabHeadersHtml}
+          ${panels}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 7: twoCardAccordion
+    // ────────────────────────────────────────────────────────────────────────
+    function renderTwoCardAccordion(s) {
+      const cards = (s.cards || []).slice(0, 2).map(c => {
+        const items = (c.items || []).map(it => `<li class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-100 dark:border-brand-darkBorder/60 last:border-0"><span class="text-xs text-slate-600 dark:text-slate-300">${esc(it.label)}</span><span class="text-xs font-bold text-brand-primary dark:text-brand-lightBlue text-right">${esc(it.value || "")}</span></li>`).join("");
+        return `<div class="${UI.card} p-5 flex-1">
+          ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl mb-2">${c.icon}</span>` : ""}
+          <p class="text-base font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
+          ${c.desc ? `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">${esc(c.desc)}</p>` : ""}
+          ${items ? `<ul class="mt-3">${items}</ul>` : ""}
+        </div>`;
+      }).join("");
+      const check = (s.miniCheck && s.miniCheck.length) ? s.miniCheck.map(ch => `<details class="mt-4"><summary class="cursor-pointer text-xs font-bold text-brand-primary dark:text-brand-lightBlue">${esc(ch.label)}</summary><ul class="mt-2 space-y-1 list-disc list-inside ${UI.text}">${(ch.items || []).map(it => `<li>${esc(it)}</li>`).join("")}</ul></details>`).join("") : "";
+      return `
+        <div class="max-w-3xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${s.infoBanner ? `<div class="p-3 rounded-xl bg-blue-50 dark:bg-brand-primary/10 border border-brand-primary/30 text-xs sm:text-sm text-brand-primary dark:text-brand-lightBlue flex items-start gap-2"><span class="material-symbols-outlined text-base shrink-0">${s.infoBannerIcon || "info"}</span><span>${s.infoBanner}</span></div>` : ""}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${cards}</div>
+          ${check}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 8: docTabs
+    // ────────────────────────────────────────────────────────────────────────
+    function renderDocTabs(s) {
+      const tabs = s.tabs || [];
+      if (!tabs.length) return `<div class="p-8 text-center text-slate-500">No doc tabs defined.</div>`;
+      const groupId = 'docs_' + state.currentSlide;
+      const tabHeadersHtml = `
+        <div class="inline-flex flex-wrap gap-1 p-1 rounded-xl bg-slate-100 dark:bg-brand-darkBg mb-4" role="tablist">
+          ${tabs.map((it, i) => `<button role="tab" data-tab-group="${groupId}" data-tab="${it.key}" onclick="switchTabGroup('${groupId}','${it.key}')" class="${i === 0 ? UI.tabOn : UI.tabOff}">${esc(it.label)}</button>`).join("")}
+        </div>`;
+      const panels = tabs.map((tb, i) => {
+        const itType = tb.itemType || 'list';
+        const items = (tb.items || []).map((it, idx) => {
+          if (typeof it === 'string') {
+            if (itType === 'attachments') {
+              return `<li class="${UI.card} p-3 flex items-center gap-3"><span class="w-16 shrink-0 text-xs font-mono font-bold text-brand-primary dark:text-brand-lightBlue">Lamp. ${idx+1}</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it)}</span></li>`;
+            }
+            if (itType === 'records') {
+              return `<li class="${UI.card} p-3 flex items-center gap-3"><span class="w-8 shrink-0 text-xs font-mono font-bold text-brand-primary dark:text-brand-lightBlue">${(idx+1).toString().padStart(2,'0')}</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it)}</span></li>`;
+            }
+            return `<li class="${UI.card} p-3 flex items-center gap-3"><span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-sm">description</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it)}</span></li>`;
+          }
+          return `<li class="${UI.card} p-3"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-sm">description</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it.doc)}</span></div>${it.note ? `<p class="mt-1 ml-8 text-[10px] text-slate-500 dark:text-slate-400">${esc(it.note)}</p>` : ""}</li>`;
+        }).join("");
+        return `<ol data-panel-group="${groupId}" data-panel="${tb.key}" class="${i === 0 ? '' : 'hidden'} grid grid-cols-1 sm:grid-cols-2 gap-2.5" role="tabpanel">${items}</ol>`;
+      }).join("");
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${tabHeadersHtml}
+          ${panels}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 9: kpiDashboard
+    // ────────────────────────────────────────────────────────────────────────
+    function renderKpiDashboard(s) {
+      const kpis = (s.kpis || []).map(k => `
+        <div class="${UI.card} p-5">
+          <div class="flex items-start justify-between gap-2">
+            <p class="${UI.label}">${esc(k.label)}</p>
+            ${k.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue">${k.icon}</span>` : ""}
+          </div>
+          <p class="mt-3 text-2xl font-extrabold text-slate-900 dark:text-white">${esc(k.value)}</p>
+          ${k.target ? `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Target: ${esc(k.target)}</p>` : ""}
+          ${k.desc ? `<p class="mt-2 ${UI.text}">${esc(k.desc)}</p>` : ""}
+        </div>`).join("");
+      const checklist = (s.auditChecklist && s.auditChecklist.length) ? `
+        <div class="${UI.card} p-5">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <p class="${UI.label}">Audit Checklist</p>
+            <div class="text-right">
+              <span id="auditGaugeScore" class="text-2xl font-extrabold text-brand-primary dark:text-brand-lightBlue">0</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400"> / ${s.auditChecklist.length}</span>
+            </div>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-brand-darkBorder overflow-hidden mb-3">
+            <div id="auditGaugeBar" class="h-full bg-brand-primary dark:bg-brand-lightBlue transition-all" style="width: 0%"></div>
+          </div>
+          <ul class="space-y-2">
+            ${s.auditChecklist.map(it => `<li class="flex items-center gap-2"><input type="checkbox" id="audit_${esc(it.id)}" class="audit-item w-4 h-4 rounded border-slate-300 dark:border-brand-darkBorder text-brand-primary focus:ring-brand-primary" onchange="calcAuditScore()"><label for="audit_${esc(it.id)}" class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 cursor-pointer">${esc(it.label)}</label></li>`).join("")}
+          </ul>
+        </div>` : "";
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">${kpis}</div>
+          ${checklist}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 10: riskCards
+    // ────────────────────────────────────────────────────────────────────────
+    function renderRiskCards(s) {
+      const risks = (s.risks || []).map(r => `
+        <div class="${UI.card} p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] font-mono font-bold px-2 py-1 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">${esc(r.no)}</span>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Proses</p>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">${esc(r.proc)}</p>
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-brand-darkBorder/60 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div><p class="${UI.label}">Risiko</p><p class="mt-1 text-xs text-rose-700 dark:text-rose-300 leading-relaxed">${esc(r.risk)}</p></div>
+            <div><p class="${UI.label}">Mitigasi</p><p class="mt-1 text-xs text-emerald-700 dark:text-emerald-300 leading-relaxed">${esc(r.mit)}</p></div>
+          </div>
+        </div>`).join("");
+      return `
+        <div class="max-w-4xl mx-auto space-y-3">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${risks}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 11: quiz — body shell rendered here. Question rendering delegated
+    // to the extended quiz engine (renderQuizSlide below).
+    // ────────────────────────────────────────────────────────────────────────
+    function renderQuiz(s) {
+      return `
+        <div class="max-w-3xl mx-auto space-y-4" id="quizContainer">
+          <header class="text-center">
+            <p class="${UI.label}">${esc(s.category || "Uji Pemahaman")}</p>
+            <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">${esc(s.title || "Uji Pemahaman")}</h2>
+            ${s.lead ? `<p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">${esc(s.lead)}</p>` : ""}
+          </header>
+          <!-- Quiz content rendered by renderQuizSlide(body) into #quizContainer -->
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 12: summaryCertificate
+    // ────────────────────────────────────────────────────────────────────────
+    function renderSummaryCertificate(s) {
+      const passed = state.quizCompleted && state.quizScore >= (COURSE.course.passingScore || 80);
+      const takeaways = (s.takeaways || []).map(r => `
+        <div class="${UI.card} p-4 flex items-start gap-3">
+          <span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl mt-0.5 shrink-0">${r.icon || "check_circle"}</span>
+          <div>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(r.title)}</p>
+            ${r.desc ? `<p class="mt-1 ${UI.text}">${esc(r.desc)}</p>` : ""}
+          </div>
+        </div>`).join("");
+      return `
+        <div class="max-w-3xl mx-auto space-y-6">
+          <div class="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-brand-primary to-[#1F548E] text-white shadow-lg text-center">
+            <p class="text-xs font-semibold text-sky-200 tracking-wide font-mono">${esc(s.heroTitle || "Penyelesaian Modul")}</p>
+            <p class="mt-3 text-5xl font-extrabold">${state.quizScore}<span class="text-2xl">/100</span></p>
+            <p class="mt-2 text-sm text-blue-100">${passed ? "Selamat! Anda lulus uji pemahaman." : (s.failMessage || "Anda belum lulus. Silakan ulangi kuis.")}</p>
+          </div>
+          ${takeaways ? `<div><p class="${UI.label} mb-3">Key Takeaways</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${takeaways}</div></div>` : ""}
+          ${passed ? `
+            <div class="${UI.card} p-5 space-y-4">
+              <p class="${UI.label} text-center">Sertifikat Penyelesaian</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="text-xs text-slate-600 dark:text-slate-400">Nama Lengkap
+                  <input id="certInputName" type="text" value="${esc(state.participantName)}" oninput="state.participantName=this.value" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-sm">
+                </label>
+                <label class="text-xs text-slate-600 dark:text-slate-400">NIP / ID
+                  <input id="certInputNip" type="text" value="${esc(state.participantNIP)}" oninput="state.participantNIP=this.value" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-sm">
+                </label>
+              </div>
+              <button onclick="printCertificate()" class="w-full px-4 py-3 rounded-xl bg-brand-primary text-white font-bold shadow-lg btn-tactile hover:bg-brand-primaryHover flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">verified</span>
+                <span>Cetak Sertifikat</span>
+              </button>
+            </div>` : ""}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 13: imageGallery (NEW)
+    // ────────────────────────────────────────────────────────────────────────
+    function renderImageGallery(s) {
+      const cols = s.columns || 3;
+      const gridCls = cols === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-4" :
+                      cols === 4 ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" :
+                      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
+      if (s.layout === 'carousel') {
+        return `
+          <div class="max-w-4xl mx-auto space-y-4">
+            ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+            <div class="relative ${UI.card} overflow-hidden">
+              <div id="galleryCarousel" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
+                ${(s.images || []).map((img, i) => `
+                  <figure class="snap-center shrink-0 w-full sm:w-3/4 p-3">
+                    <img src="${esc(img.src)}" alt="${esc(img.alt)}" class="w-full h-auto rounded-xl" loading="lazy">
+                    ${img.caption ? `<figcaption class="mt-2 text-xs text-center text-slate-500 dark:text-slate-400">${esc(img.caption)}</figcaption>` : ""}
+                  </figure>`).join("")}
+              </div>
+              <div class="flex justify-center gap-2 mt-2">
+                ${(s.images || []).map((_, i) => `<button onclick="document.querySelectorAll('#galleryCarousel figure')[${i}].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})" class="w-2 h-2 rounded-full bg-slate-300 dark:bg-brand-darkBorder hover:bg-brand-primary"></button>`).join("")}
+              </div>
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          <div class="${gridCls}">
+            ${(s.images || []).map(img => `
+              <figure class="${UI.card} overflow-hidden">
+                <img src="${esc(img.src)}" alt="${esc(img.alt)}" class="w-full h-auto" loading="lazy">
+                ${img.caption ? `<figcaption class="p-3 text-xs text-slate-500 dark:text-slate-400">${esc(img.caption)}</figcaption>` : ""}
+              </figure>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 14: videoEmbed (NEW)
+    // ────────────────────────────────────────────────────────────────────────
+    function renderVideoEmbed(s) {
+      const aspectMap = { "16:9": "aspect-video", "4:3": "aspect-[4/3]", "1:1": "aspect-square", "9:16": "aspect-[9/16]" };
+      const aspectCls = aspectMap[s.aspectRatio || "16:9"] || "aspect-video";
+      let embed = "";
+      const src = s.src || "";
+      if (s.provider === "youtube") {
+        // Extract YouTube video id
+        const m = src.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
+        const ytId = m ? m[1] : "";
+        embed = `<iframe src="https://www.youtube.com/embed/${ytId}" title="${esc(s.title)}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      } else if (s.provider === "vimeo") {
+        const m = src.match(/vimeo\.com\/(\d+)/);
+        const vimeoId = m ? m[1] : "";
+        embed = `<iframe src="https://player.vimeo.com/video/${vimeoId}" title="${esc(s.title)}" class="w-full h-full" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+      } else {
+        // Direct file
+        embed = `<video controls ${s.poster ? `poster="${esc(s.poster)}"` : ""} class="w-full h-full"><source src="${esc(src)}">Your browser does not support the video tag.</video>`;
+      }
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          <div class="${UI.card} overflow-hidden">
+            <div class="${aspectCls} bg-black">${embed}</div>
+            ${s.durationLabel ? `<div class="p-3 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2"><span class="material-symbols-outlined text-sm">schedule</span><span>${esc(s.durationLabel)}</span></div>` : ""}
+          </div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 15: calloutBox (NEW)
+    // ────────────────────────────────────────────────────────────────────────
+    function renderCalloutBox(s) {
+      const variantCfg = {
+        info:     { icon: "info",      cls: "bg-blue-50 dark:bg-brand-primary/10 border-brand-primary/30 text-brand-primary dark:text-brand-lightBlue" },
+        warning:  { icon: "warning",   cls: "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300" },
+        success:  { icon: "check_circle", cls: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300" },
+        danger:   { icon: "dangerous", cls: "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300" }
+      };
+      const cfg = variantCfg[s.variant || "info"] || variantCfg.info;
+      const icon = s.icon || cfg.icon;
+      return `
+        <div class="max-w-3xl mx-auto space-y-4">
+          ${(s.title && s.title !== cfg.icon) ? uiTitle(s.title, s.lead) : (s.lead ? `<p class="text-xs text-slate-500 dark:text-slate-400 mb-3">${esc(s.lead)}</p>` : "")}
+          <div class="p-4 sm:p-5 rounded-xl border-2 ${cfg.cls} flex items-start gap-3">
+            <span class="material-symbols-outlined text-2xl shrink-0">${icon}</span>
+            <div class="flex-1">
+              <p class="text-sm font-bold">${esc(s.title || "")}</p>
+              <div class="mt-1 text-xs sm:text-sm leading-relaxed">${s.body || ""}</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 16: stepByStep (NEW)
+    // ────────────────────────────────────────────────────────────────────────
+    function renderStepByStep(s) {
+      const steps = (s.steps || []).map((st, i) => {
+        const num = st.number || (i + 1).toString();
+        return `
+          <li class="flex items-start gap-3">
+            <div class="shrink-0 w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-sm">${esc(num)}</div>
+            <div class="flex-1 pt-1">
+              <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(st.title)}</p>
+              ${st.desc ? `<p class="mt-1 ${UI.text}">${esc(st.desc)}</p>` : ""}
+            </div>
+          </li>`;
+      }).join("");
+      const connector = s.connector || "line";
+      const ulCls = connector === "none" ? "space-y-3" : "space-y-4 relative";
+      const lineCls = connector === "line" ? `<div class="absolute left-5 top-10 bottom-10 w-px bg-slate-200 dark:bg-brand-darkBorder"></div>` :
+                      connector === "arrow" ? `<div class="absolute left-5 top-10 bottom-10 w-px bg-gradient-to-b from-transparent via-brand-primary/30 to-transparent"></div>` : "";
+      return `
+        <div class="max-w-2xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          <ul class="${ulCls}">${lineCls}${steps}</ul>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 17: comparisonTable (NEW)
+    // ────────────────────────────────────────────────────────────────────────
+    function renderComparisonTable(s) {
+      const cols = s.columns || [];
+      if (!cols.length) return `<div class="p-8 text-center text-slate-500">No columns defined.</div>`;
+      const highlight = s.highlightColumn;
+      return `
+        <div class="max-w-4xl mx-auto space-y-4">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          <div class="${UI.card} overflow-hidden">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-brand-darkBorder">
+                  <th class="p-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"></th>
+                  ${cols.map(c => `<th class="p-3 text-left ${highlight === c.key ? 'bg-brand-primary/10 dark:bg-brand-lightBlue/10 text-brand-primary dark:text-brand-lightBlue' : 'text-slate-700 dark:text-slate-300'} text-xs font-bold">${c.icon ? `<span class="material-symbols-outlined text-base mr-1 align-middle">${c.icon}</span>` : ""}${esc(c.label)}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${(s.rows || []).map(r => `
+                  <tr class="border-b border-slate-100 dark:border-brand-darkBorder/60 last:border-0">
+                    <td class="p-3 text-xs font-bold text-slate-700 dark:text-slate-300">${esc(r.label || "")}</td>
+                    ${cols.map(c => `<td class="p-3 text-xs sm:text-sm ${highlight === c.key ? 'bg-brand-primary/5 dark:bg-brand-lightBlue/5' : ''} text-slate-700 dark:text-slate-300">${(r.cells && r.cells[c.key]) || ""}</td>`).join("")}
+                  </tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // TYPE 18: faqAccordion (NEW)
+    // ────────────────────────────────────────────────────────────────────────
+    function renderFaqAccordion(s) {
+      const items = (s.items || []).map((it, i) => `
+        <details class="${UI.card} group">
+          <summary class="p-4 cursor-pointer flex items-center justify-between gap-3 list-none">
+            <span class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              ${it.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-base">${it.icon}</span>` : `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue">Q${i+1}</span>`}
+              ${esc(it.q)}
+            </span>
+            <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+          </summary>
+          <div class="px-4 pb-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">${it.a || ""}</div>
+        </details>`).join("");
+      return `
+        <div class="max-w-3xl mx-auto space-y-3">
+          ${(s.title || s.lead) ? uiTitle(s.title, s.lead) : ""}
+          ${items}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // SLIDE RENDERER REGISTRY — single source of truth.
+    // To add a new slide type: write `renderYourType(slideDef)` above and
+    // add an entry below: `'yourType': renderYourType`.
+    // ────────────────────────────────────────────────────────────────────────
+    const SLIDE_RENDERERS = {
+      'cover':              renderCover,
+      'cardList':           renderCardList,
+      'treeCanvas':         renderTreeCanvas,
+      'scenarioPicker':    renderScenarioPicker,
+      'tabbedAccordion':    renderTabbedAccordion,
+      'verificationMatrix': renderVerificationMatrix,
+      'twoCardAccordion':   renderTwoCardAccordion,
+      'docTabs':            renderDocTabs,
+      'kpiDashboard':      renderKpiDashboard,
+      'riskCards':         renderRiskCards,
+      'quiz':              renderQuiz,
+      'summaryCertificate':renderSummaryCertificate,
+      'imageGallery':      renderImageGallery,
+      'videoEmbed':        renderVideoEmbed,
+      'calloutBox':        renderCalloutBox,
+      'stepByStep':        renderStepByStep,
+      'comparisonTable':   renderComparisonTable,
+      'faqAccordion':      renderFaqAccordion
+    };
+
+
+    // ========================================================================
+    // QUIZ ENGINE — supports MCQ + True/False + Fill-in-the-blank
+    // ========================================================================
+    function shuffleArray(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function getCurrentQuizQuestions() {
+      // Find the quiz slideDef — could be the current slide (most common) OR a slide referenced elsewhere
+      const slide = COURSE.slides[state.currentSlide];
+      if (slide && slide.type === 'quiz' && slide.questions) return slide.questions;
+      // Fallback: scan for any quiz slide
+      const quizSlide = COURSE.slides.find(s => s.type === 'quiz');
+      return (quizSlide && quizSlide.questions) || [];
+    }
+
+    function ensureQuizOrder() {
+      // For each MCQ question, build a shuffled option-order array.
+      // TF and fillIn don't need shuffling.
+      if (state.quizOrder) return;
+      const qs = getCurrentQuizQuestions();
+      state.quizOrder = qs.map(q => {
+        if (q.type === 'mcq') {
+          const idxs = q.options.map((_, i) => i);
+          return shuffleArray(idxs);
+        }
+        return null; // no shuffling for TF/fillIn
+      });
+    }
+
+    function renderQuizSlide(container) {
+      const qs = getCurrentQuizQuestions();
+      const total = qs.length;
+      if (!total) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-500">No quiz questions defined.</div>`;
+        return;
+      }
+      // Summary screen post-submit
+      if (state.quizCompleted) {
+        renderQuizSummary(container, qs);
+        return;
+      }
+      const idx = state.quizIndex;
+      const q = qs[idx];
+      // Progress indicator
+      const dots = qs.map((_, i) => {
+        const answered = state.userAnswers[i] != null;
+        const current = i === idx;
+        return `<button onclick="quizJump(${i})" class="w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center border-2 transition-all ${current ? 'border-brand-primary dark:border-brand-lightBlue bg-brand-primary text-white' : answered ? 'border-brand-primary/50 dark:border-brand-lightBlue/50 text-brand-primary dark:text-brand-lightBlue' : 'border-slate-300 dark:border-brand-darkBorder text-slate-400'}">${i+1}</button>`;
+      }).join(" ");
+
+      let questionHtml = "";
+      if (q.type === 'mcq') {
+        const order = state.quizOrder[idx] || q.options.map((_, i) => i);
+        questionHtml = `<div class="space-y-2 mt-4" role="radiogroup">
+          ${q.options.map((opt, i) => {
+            const originalIdx = order[i];
+            const isSelected = state.userAnswers[idx] === originalIdx;
+            return `<button onclick="selectQuizAnswer(${idx}, ${originalIdx})" role="radio" aria-checked="${isSelected}" class="w-full text-left p-3 rounded-xl border-2 ${isSelected ? 'border-brand-primary dark:border-brand-lightBlue bg-brand-primary/5 dark:bg-brand-lightBlue/5' : 'border-slate-200 dark:border-brand-darkBorder hover:border-brand-primary/50'} btn-tactile flex items-start gap-2">
+              <span class="w-5 h-5 rounded-full border-2 ${isSelected ? 'border-brand-primary dark:border-brand-lightBlue bg-brand-primary dark:bg-brand-lightBlue' : 'border-slate-300 dark:border-brand-darkBorder'} flex items-center justify-center shrink-0 mt-0.5">${isSelected ? '<span class="w-2 h-2 rounded-full bg-white"></span>' : ''}</span>
+              <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200">${esc(opt)}</span>
+            </button>`;
+          }).join("")}
+        </div>`;
+      } else if (q.type === 'trueFalse') {
+        const sel = state.userAnswers[idx];
+        const opt = (val, label) => `<button onclick="selectQuizAnswer(${idx}, ${val})" role="radio" aria-checked="${sel === val}" class="flex-1 p-3 rounded-xl border-2 ${sel === val ? 'border-brand-primary dark:border-brand-lightBlue bg-brand-primary/5 dark:bg-brand-lightBlue/5' : 'border-slate-200 dark:border-brand-darkBorder hover:border-brand-primary/50'} btn-tactile text-sm font-bold text-slate-700 dark:text-slate-200">${label}</button>`;
+        questionHtml = `<div class="flex gap-2 mt-4" role="radiogroup">${opt(true, "Benar")}${opt(false, "Salah")}</div>`;
+      } else if (q.type === 'fillIn') {
+        const cur = state.userAnswers[idx] != null ? state.userAnswers[idx] : "";
+        questionHtml = `<div class="mt-4">
+          <input type="text" value="${esc(cur)}" placeholder="${esc(q.placeholder || "Ketik jawaban Anda...")}" oninput="selectQuizAnswer(${idx}, this.value)" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-sm focus:border-brand-primary dark:focus:border-brand-lightBlue focus:outline-none">
+          <p class="mt-2 text-[10px] text-slate-500 dark:text-slate-400">Jawaban diterima case-insensitive.</p>
+        </div>`;
+      } else {
+        questionHtml = `<div class="p-4 text-center text-red-500">Unknown question type: ${q.type}</div>`;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex flex-wrap gap-1.5">${dots}</div>
+            <span class="text-xs text-slate-500 dark:text-slate-400">${idx+1} / ${total}</span>
+          </div>
+          <div class="${UI.card} p-5 space-y-3">
+            <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed">${esc(q.question)}</p>
+            ${questionHtml}
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <button onclick="quizJump(${Math.max(0, idx-1)})" ${idx === 0 ? 'disabled' : ''} class="px-4 py-2 rounded-lg text-xs font-bold ${idx === 0 ? 'bg-slate-100 dark:bg-brand-darkSubtle text-slate-400 cursor-not-allowed' : 'bg-slate-100 dark:bg-brand-darkSubtle text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-brand-darkBorder'} btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">arrow_back</span>Prev</button>
+            ${idx === total - 1
+              ? `<button onclick="submitQuizEvaluation()" class="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600 btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">check_circle</span>Submit</button>`
+              : `<button onclick="quizJump(${idx+1})" class="px-4 py-2 rounded-lg text-xs font-bold bg-brand-primary text-white hover:bg-brand-primaryHover btn-tactile flex items-center gap-1">Next<span class="material-symbols-outlined text-base">arrow_forward</span></button>`}
+          </div>
+        </div>`;
+    }
+
+    function renderQuizSummary(container, qs) {
+      const total = qs.length;
+      const correct = qs.reduce((acc, q, i) => acc + (isAnswerCorrect(q, state.userAnswers[i]) ? 1 : 0), 0);
+      const pct = Math.round((correct / total) * 100);
+      const passed = pct >= (COURSE.course.passingScore || 80);
+      const rows = qs.map((q, i) => {
+        const userAns = state.userAnswers[i];
+        const isCorrect = isAnswerCorrect(q, userAns);
+        const userDisplay = displayAnswer(q, userAns);
+        const correctDisplay = displayCorrectAnswer(q);
+        return `<div class="${UI.card} p-4">
+          <div class="flex items-start gap-2 mb-2">
+            <span class="material-symbols-outlined ${isCorrect ? 'text-emerald-500' : 'text-rose-500'}">${isCorrect ? 'check_circle' : 'cancel'}</span>
+            <p class="text-sm font-bold text-slate-900 dark:text-white flex-1">${esc(q.question)}</p>
+          </div>
+          <div class="ml-7 space-y-1 text-xs">
+            <p class="text-slate-600 dark:text-slate-400">Your answer: <span class="${isCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'} font-semibold">${userDisplay || "—"}</span></p>
+            ${!isCorrect ? `<p class="text-slate-600 dark:text-slate-400">Correct: <span class="text-emerald-700 dark:text-emerald-300 font-semibold">${correctDisplay}</span></p>` : ""}
+            ${q.explanation ? `<p class="text-slate-500 dark:text-slate-400 mt-2 italic">${esc(q.explanation)}</p>` : ""}
+          </div>
+        </div>`;
+      }).join("");
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="text-center ${UI.card} p-6">
+            <p class="text-5xl font-extrabold ${passed ? 'text-emerald-500' : 'text-rose-500'}">${pct}<span class="text-2xl">/100</span></p>
+            <p class="mt-2 text-sm ${passed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}">${passed ? 'Lulus!' : 'Belum lulus'}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">${correct} dari ${total} benar</p>
+          </div>
+          ${rows}
+          <div class="flex justify-center gap-2">
+            <button onclick="resetQuiz()" class="px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 dark:bg-brand-darkSubtle text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-brand-darkBorder btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">refresh</span>Ulangi</button>
+          </div>
+        </div>`;
+    }
+
+    function displayAnswer(q, ans) {
+      if (ans == null || ans === "") return "—";
+      if (q.type === 'mcq') return q.options[ans] || "—";
+      if (q.type === 'trueFalse') return ans === true ? "Benar" : "Salah";
+      if (q.type === 'fillIn') return String(ans);
+      return String(ans);
+    }
+
+    function displayCorrectAnswer(q) {
+      if (q.type === 'mcq') return q.options[q.correctIndex] || "—";
+      if (q.type === 'trueFalse') return q.correctBool ? "Benar" : "Salah";
+      if (q.type === 'fillIn') return (q.acceptedAnswers || []).join(" / ");
+      return "—";
+    }
+
+    function isAnswerCorrect(q, ans) {
+      if (ans == null || ans === "") return false;
+      if (q.type === 'mcq') return ans === q.correctIndex;
+      if (q.type === 'trueFalse') return ans === q.correctBool;
+      if (q.type === 'fillIn') {
+        const norm = String(ans).trim().toLowerCase();
+        return (q.acceptedAnswers || []).some(a => a.trim().toLowerCase() === norm);
+      }
+      return false;
+    }
+
+    function quizJump(i) {
+      const qs = getCurrentQuizQuestions();
+      if (i < 0 || i >= qs.length) return;
+      playTone('click');
+      state.quizIndex = i;
+      const body = document.getElementById("slideBody");
+      // Find quiz container
+      const container = body.querySelector('#quizContainer') || body;
+      renderQuizSlide(container);
+    }
+
+    function selectQuizAnswer(qIdx, ans) {
+      state.userAnswers[qIdx] = ans;
+      const body = document.getElementById("slideBody");
+      const container = body.querySelector('#quizContainer') || body;
+      renderQuizSlide(container);
+    }
+
+    function submitQuizEvaluation() {
+      const qs = getCurrentQuizQuestions();
+      const total = qs.length;
+      const unanswered = qs.reduce((acc, _, i) => acc + (state.userAnswers[i] == null || state.userAnswers[i] === "" ? 1 : 0), 0);
+      if (unanswered > 0) {
+        playTone('error');
+        if (!confirm(`Masih ada ${unanswered} soal belum dijawab. Submit anyway?`)) return;
+      }
+      const correct = qs.reduce((acc, q, i) => acc + (isAnswerCorrect(q, state.userAnswers[i]) ? 1 : 0), 0);
+      state.quizScore = Math.round((correct / total) * 100);
+      state.quizCompleted = true;
+      if (state.quizScore >= (COURSE.course.passingScore || 80)) {
+        playTone('fanfare');
+        try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch (e) {}
+      } else {
+        playTone('error');
+      }
+
+      // Sync quiz result to Google Sheets Webhook if configured
+      const webhookUrl = (currentSlide() && currentSlide().webhookUrl) || (COURSE.course && COURSE.course.webhookUrl);
+      if (webhookUrl) {
+        try {
+          const payload = {
+            nama: state.participantName || '-',
+            nip: state.participantNIP || '-',
+            jabatan: state.participantJabatan || '-',
+            divisi: state.participantDivisi || '-',
+            skor: state.quizScore,
+            status: state.quizScore >= (COURSE.course.passingScore || 80) ? 'LULUS' : 'REMEDIAL'
+          };
+          fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          }).catch(err => console.warn('Webhook auto-sync warning:', err));
+        } catch (e) {
+          console.warn('Webhook fetch error:', e);
+        }
+      }
+      const body = document.getElementById("slideBody");
+      const container = body.querySelector('#quizContainer') || body;
+      renderQuizSlide(container);
+      updateNavigationControls();
+    }
+
+    function resetQuiz() {
+      playTone('click');
+      state.userAnswers = {};
+      state.quizScore = 0;
+      state.quizCompleted = false;
+      state.quizIndex = 0;
+      state.quizOrder = null;
+      ensureQuizOrder();
+      const body = document.getElementById("slideBody");
+      const container = body.querySelector('#quizContainer') || body;
+      renderQuizSlide(container);
+      updateNavigationControls();
+    }
+
+
+    // ========================================================================
+    // INTERAKSI KECIL (HALAMAN 3 & 8)
+    // ========================================================================
+    function calcAuditScore() {
+      playTone('click');
+      const items = document.querySelectorAll(".audit-item");
+      let checked = 0;
+      items.forEach(i => { if (i.checked) checked++; });
+      const pct = Math.round((checked / items.length) * 100);
+      document.getElementById("auditGaugeScore").innerText = `${pct}% Lengkap`;
+      document.getElementById("auditGaugeBar").style.width = `${pct}%`;
+      if (pct === 100) {
+        playTone('success');
+        try { confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); } catch (e) {}
+      }
+    }
+
+    // ========================================================================
+    // SWIMLANE HOTSPOT MODAL OPENER (HALAMAN 2)
+    // ========================================================================
+    function openSwimlaneHotspot(itemId) {
+      playTone('click');
+      let found = null;
+      for (const lane of (slide.swimlaneData || [])) {
+        for (const item of lane.items) {
+          if (item.id === itemId) {
+            found = item;
+            break;
+          }
+        }
+        if (found) break;
+      }
+      if (!found) return;
+
+      const badgeNumEl = document.getElementById("hotspotBadgeNum");
+      if (found.isDecision) {
+        badgeNumEl.innerHTML = '<span class="material-symbols-outlined text-base shrink-0">call_split</span>';
+      } else {
+        const numMatch = found.step.match(/\d+(\.\d+)*/);
+        badgeNumEl.innerText = numMatch ? numMatch[0] : (found.step.split(' ')[0] || '✓');
+      }
+      document.getElementById("hotspotStepSub").innerText = found.step;
+      document.getElementById("hotspotTitle").innerText = found.title;
+      document.getElementById("hotspotPic").innerText = `${found.actor} (${found.actorRole})`;
+      document.getElementById("hotspotInput").innerText = found.inputs.join(', ');
+      document.getElementById("hotspotOutput").innerText = found.outputs.join(', ');
+      
+      const descEl = document.getElementById("hotspotDescription");
+      descEl.innerHTML = found.clauses.map(c => `<p>${c}</p>`).join('');
+
+      state.lastFocusedElement = document.activeElement;
+      document.getElementById("modalHotspot").showModal();
+    }
+
+    function closeHotspotModal() {
+      playTone('click');
+      document.getElementById("modalHotspot").close();
+    }
+
+    function filterSwimlaneRole(role) {
+      playTone('click');
+      state.selectedSwimlaneRole = role;
+      const isFiltered = role && role !== 'Semua';
+
+      document.querySelectorAll('.flow-card-node').forEach(node => {
+        const actor = node.getAttribute('data-actor') || '';
+        const actorRole = node.getAttribute('data-actor-role') || '';
+        const matches = !isFiltered || actor.includes(role) || actorRole.includes(role);
+
+        // Toggle opacity
+        if (!matches) {
+          node.classList.add('opacity-35');
+        } else {
+          node.classList.remove('opacity-35');
+        }
+
+        // Toggle ring highlighting
+        if (isFiltered && matches) {
+          node.classList.add('ring-2', 'ring-brand-primary');
+        } else {
+          node.classList.remove('ring-2', 'ring-brand-primary');
+        }
+
+        // Toggle 'Peran Anda' badge
+        const badge = node.querySelector('.role-badge');
+        if (badge) {
+          badge.classList.toggle('hidden', !(isFiltered && matches));
+        }
+      });
+    }
+
+    // ========================================================================
+    // MODAL CHEAT-SHEET TENGGAT & ANGKA CONTROLLER
+    // ========================================================================
+    function openTenggatModal() {
+      playTone('click');
+      state.lastFocusedElement = document.activeElement;
+      document.getElementById("modalTenggat").showModal();
+    }
+
+    function closeTenggatModal() {
+      playTone('click');
+      document.getElementById("modalTenggat").close();
+    }
+
+    // ========================================================================
+    // MODAL TERMINOLOGI (DEFINISI POIN 4) CONTROLLER
+    // ========================================================================
+    function openTerminologiModal() {
+      playTone('click');
+      renderTerminologiList(COURSE.glossary);
+      document.getElementById("searchTermInput").value = "";
+      state.lastFocusedElement = document.activeElement;
+      document.getElementById("modalTerminologi").showModal();
+    }
+
+    function closeTerminologiModal() {
+      playTone('click');
+      document.getElementById("modalTerminologi").close();
+    }
+
+    function filterTerminologi(keyword) {
+      const q = keyword.toLowerCase().trim();
+      const filtered = COURSE.glossary.filter(item => 
+        item.istilah.toLowerCase().includes(q) || 
+        item.pengertian.toLowerCase().includes(q) ||
+        item.kategori.toLowerCase().includes(q)
+      );
+      renderTerminologiList(filtered);
+    }
+
+    function renderTerminologiList(list) {
+      const container = document.getElementById("terminologiContainer");
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-xs">
+            Tidak ada istilah yang cocok dengan kata pencarian.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(item => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-brand-darkBorder bg-slate-50 dark:bg-brand-darkBg hover:bg-white dark:hover:bg-brand-darkSubtle transition-all space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="font-extrabold text-xs sm:text-sm text-brand-primary dark:text-brand-lightBlue">
+              ${item.istilah}
+            </h4>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.badgeColor}">
+              ${item.kategori}
+            </span>
+          </div>
+          <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
+            ${item.pengertian}
+          </p>
+          <div class="pt-1.5 text-[11px] text-slate-500 italic border-t border-slate-200/50 dark:border-brand-darkBorder/50">
+            Konteks SOP: ${item.catatan}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========================================================================
+    // MODAL HINT CONTROLLER
+    // ========================================================================
+    function openHintModal() {
+      playTone('click');
+      state.lastFocusedElement = document.activeElement;
+      document.getElementById("modalHint").showModal();
+    }
+    function closeHintModal() {
+      playTone('click');
+      document.getElementById("modalHint").close();
+    }
+
+    // ========================================================================
+    // SIDEBAR & TRANSCRIPT & OUTLINE CONTROLLER (RESPONSIVE MOBILE & DESKTOP)
+    // ========================================================================
+    function toggleSidebar() {
+      playTone('click');
+      const sb = document.getElementById("courseSidebar");
+      const bd = document.getElementById("sidebarBackdrop");
+      const icon = document.getElementById("sidebarToggleIcon");
+
+      if (window.innerWidth < 1024) {
+        // Mobile behavior: Drawer slide
+        state.isMobileDrawerOpen = !state.isMobileDrawerOpen;
+        if (state.isMobileDrawerOpen) {
+          sb.classList.remove("-translate-x-full");
+          bd.classList.remove("hidden");
+        } else {
+          sb.classList.add("-translate-x-full");
+          bd.classList.add("hidden");
+        }
+      } else {
+        // Desktop behavior: Collapse to 0
+        state.isDesktopSidebarCollapsed = !state.isDesktopSidebarCollapsed;
+        if (state.isDesktopSidebarCollapsed) {
+          sb.style.width = "0px";
+          sb.style.opacity = "0";
+          sb.style.pointerEvents = "none";
+          sb.style.borderRightWidth = "0px";
+          if (icon) icon.innerText = "dock_to_right";
+        } else {
+          sb.style.width = "";
+          sb.style.opacity = "1";
+          sb.style.pointerEvents = "auto";
+          sb.style.borderRightWidth = "";
+          if (icon) icon.innerText = "dock_to_left";
+        }
+      }
+    }
+
+    function closeSidebarMobile() {
+      if (window.innerWidth < 1024 && state.isMobileDrawerOpen) {
+        const sb = document.getElementById("courseSidebar");
+        const bd = document.getElementById("sidebarBackdrop");
+        state.isMobileDrawerOpen = false;
+        sb.classList.add("-translate-x-full");
+        bd.classList.add("hidden");
+      }
+    }
+
+    function openSidebarTabMobile(tab) {
+      playTone('click');
+      switchSidebarTab(tab);
+      const sb = document.getElementById("courseSidebar");
+      const bd = document.getElementById("sidebarBackdrop");
+      const icon = document.getElementById("sidebarToggleIcon");
+
+      if (window.innerWidth < 1024) {
+        // Mobile Drawer
+        state.isMobileDrawerOpen = true;
+        if (sb) sb.classList.remove("-translate-x-full");
+        if (bd) bd.classList.remove("hidden");
+      } else {
+        // Desktop: otomatis uncollapse jika sidebar sedang tertutup
+        if (state.isDesktopSidebarCollapsed && sb) {
+          state.isDesktopSidebarCollapsed = false;
+          sb.style.width = "";
+          sb.style.opacity = "1";
+          sb.style.pointerEvents = "auto";
+          sb.style.borderRightWidth = "";
+          if (icon) icon.innerText = "dock_to_left";
+        }
+      }
+    }
+
+    window.addEventListener("resize", () => {
+      const sb = document.getElementById("courseSidebar");
+      const bd = document.getElementById("sidebarBackdrop");
+      const icon = document.getElementById("sidebarToggleIcon");
+      if (window.innerWidth >= 1024) {
+        if (bd) bd.classList.add("hidden");
+        if (sb) {
+          sb.classList.remove("-translate-x-full");
+          if (state.isDesktopSidebarCollapsed) {
+            sb.style.width = "0px";
+            sb.style.opacity = "0";
+            sb.style.pointerEvents = "none";
+            sb.style.borderRightWidth = "0px";
+            if (icon) icon.innerText = "dock_to_right";
+          } else {
+            sb.style.width = "";
+            sb.style.opacity = "1";
+            sb.style.pointerEvents = "auto";
+            sb.style.borderRightWidth = "";
+            if (icon) icon.innerText = "dock_to_left";
+          }
+        }
+      } else {
+        if (sb) {
+          sb.style.width = "";
+          sb.style.opacity = "";
+          sb.style.pointerEvents = "";
+          sb.style.borderRightWidth = "";
+          if (state.isMobileDrawerOpen) {
+            sb.classList.remove("-translate-x-full");
+            if (bd) bd.classList.remove("hidden");
+          } else {
+            sb.classList.add("-translate-x-full");
+            if (bd) bd.classList.add("hidden");
+          }
+        }
+        if (icon) icon.innerText = "menu";
+      }
+    });
+
+    function switchSidebarTab(tab) {
+      playTone('click');
+      const btnO = document.getElementById("tabNavOutline");
+      const btnT = document.getElementById("tabNavNotes");
+      const btnR = document.getElementById("tabNavResources");
+      const cO = document.getElementById("tabContentOutline");
+      const cT = document.getElementById("tabContentNotes");
+      const cR = document.getElementById("tabContentResources");
+
+      [btnO, btnT, btnR].forEach(b => {
+        b.className = "flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-b-2 border-transparent transition-all cursor-pointer";
+      });
+      [cO, cT, cR].forEach(c => c.classList.add("hidden"));
+
+      if (tab === 'outline') {
+        btnO.className = "flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-brand-primary dark:text-brand-lightBlue border-b-2 border-brand-primary dark:border-brand-lightBlue transition-all cursor-pointer";
+        cO.classList.remove("hidden");
+      } else if (tab === 'notes') {
+        btnT.className = "flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-brand-primary dark:text-brand-lightBlue border-b-2 border-brand-primary dark:border-brand-lightBlue transition-all cursor-pointer";
+        cT.classList.remove("hidden");
+      } else {
+        btnR.className = "flex-1 py-3 px-2 flex items-center justify-center gap-1.5 text-brand-primary dark:text-brand-lightBlue border-b-2 border-brand-primary dark:border-brand-lightBlue transition-all cursor-pointer";
+        cR.classList.remove("hidden");
+      }
+    }
+
+    function updateOutlineUI() {
+      const container = document.getElementById("outlineNavList");
+      container.innerHTML = COURSE.units.map((u, idx) => {
+        const isCurrent = idx === state.currentSlide;
+        const isCompleted = state.completedSlides.has(idx);
+        const isUnlocked = COURSE.course.devMode || isCompleted || idx <= state.currentSlide + 1;
+
+        let iconColor = isCurrent ? "text-brand-primary dark:text-brand-lightBlue" : (isCompleted ? "text-brand-primary" : "text-slate-400");
+        let activeBg = isCurrent ? "bg-brand-primary/10 dark:bg-brand-darkSubtle border-l-4 border-brand-primary dark:border-brand-lightBlue" : "hover:bg-slate-100 dark:hover:bg-brand-darkSubtle/60";
+
+        return `
+          <button onclick="goToSlide(${idx})" class="w-full text-left py-2 px-2.5 rounded-xl transition-all flex items-center gap-3 ${activeBg} ${isUnlocked ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}">
+            <span class="material-symbols-outlined text-base ${iconColor} shrink-0">
+              ${isCompleted ? 'check_circle' : (isUnlocked ? u.icon : 'lock')}
+            </span>
+            <div class="flex-1 truncate">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${u.title}</div>
+            </div>
+            <span class="text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">${u.duration}</span>
+          </button>
+        `;
+      }).join('');
+
+      const pct = Math.round((state.completedSlides.size / COURSE.units.length) * 100);
+      document.getElementById("overallPercentage").innerText = `${pct}%`;
+      document.getElementById("badgeProgress").innerText = `${state.currentSlide + 1} / ${COURSE.units.length}`;
+    }
+
+
+    function updateTranscriptAndCC() {
+      const slideDef = COURSE.slides[state.currentSlide];
+      const narr = (slideDef && slideDef.narration)
+        || (COURSE.narration && (COURSE.narration[String(state.currentSlide)] || COURSE.narration[state.currentSlide]))
+        || "Transkrip belum tersedia.";
+      const notes = document.getElementById("notesTextContainer");
+      const cap = document.getElementById("captionText");
+      if (notes) notes.innerHTML = `<p class="text-xs leading-relaxed text-slate-600 dark:text-slate-400">${narr}</p>`;
+      if (cap) cap.innerText = narr;
+    }
+
+
+    // ========================================================================
+    // THEME & CERTIFICATE PRINT CONTROLLER
+    // ========================================================================
+    function applyTheme() {
+      const html = document.documentElement;
+      const body = document.getElementById("playerRoot") || document.body;
+      const icon = document.getElementById("themeIcon");
+      const label = document.getElementById("themeLabel");
+      if (state.isDarkMode) {
+        html.classList.add("dark");
+        body.classList.add("dark");
+        if (icon) icon.innerText = "light_mode";
+        if (label) label.innerText = "Light";
+      } else {
+        html.classList.remove("dark");
+        body.classList.remove("dark");
+        if (icon) icon.innerText = "dark_mode";
+        if (label) label.innerText = "Dark";
+      }
+    }
+
+    function toggleTheme() {
+      playTone('click');
+      state.isDarkMode = !state.isDarkMode;
+      applyTheme();
+    }
+
+    function toggleFullscreen() {
+      playTone('click');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function printCertificate() {
+      playTone('click');
+      document.getElementById("certScoreVal").innerText = state.quizScore;
+      document.getElementById("certRecipientName").innerText = state.participantName || "Peserta Pelatihan";
+      document.getElementById("certRecipientNIP").innerText = `NIP: ${state.participantNIP || "-"} • ${COURSE.brand.orgName || ""}`;
+      const randNum = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById("certNumberLabel").innerText = `No. Reg: ${(COURSE.brand.certRegPrefix || "REG")}/${new Date().getFullYear()}/${randNum}`;
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById("certDateVal").innerText = new Date().toLocaleDateString('id-ID', options);
+      
+      const cert = document.getElementById("certificatePrintArea");
+      cert.classList.remove("hidden");
+      window.print();
+      setTimeout(() => cert.classList.add("hidden"), 1000);
+    }
+
+
+    // ========================================================================
+    // AUTHENTIC SOP TREE DIAGRAM RENDERER (STRUKTUR RESMI 3 KOLOM SOP)
+    // ========================================================================
+
+    // ========================================================================
+    // renderTreeCanvas is defined inside the NEW_RENDER_DISPATCHER block above.
+    // ========================================================================
+
+
+        // ========================================================================
+    // PAN & ZOOM CANVAS ENGINE WITH ADVANCED SCROLLING FEATURES
+    // ========================================================================
+    let canvasPanZoom = {
+      scale: 1,
+      x: 0,
+      y: 0,
+      isPanning: false,
+      startX: 0,
+      startY: 0
+    };
+
+    function getTreeContentHeight() {
+      const inner = document.getElementById("treeCanvasInner");
+      if (!inner) return 5200;
+
+      const f3 = document.getElementById("fase-3");
+      let f3Bottom = 0;
+      if (f3) {
+        f3Bottom = f3.offsetTop + f3.offsetHeight + 240;
+      }
+
+      const termNode = inner.querySelector("[onclick*='step_5_28']");
+      let termBottom = 0;
+      if (termNode) {
+        let el = termNode;
+        let top = 0;
+        while (el && el !== inner) {
+          top += el.offsetTop;
+          el = el.offsetParent;
+        }
+        termBottom = top + termNode.offsetHeight + 280;
+      }
+
+      const scrollH = inner.scrollHeight || 0;
+      const offsetH = inner.offsetHeight || 0;
+      const childH = inner.firstElementChild ? (inner.firstElementChild.offsetHeight + 180) : 0;
+
+      return Math.max(f3Bottom, termBottom, scrollH, offsetH, childH, 4800);
+    }
+
+    function clampCanvasBounds() {
+      const viewport = document.getElementById("treeCanvasViewport");
+      const inner = document.getElementById("treeCanvasInner");
+      if (!viewport || !inner) return;
+
+      const contentHeight = getTreeContentHeight();
+      const viewportHeight = viewport.clientHeight || 650;
+      const maxY = 40;
+      // Allow scrolling down until the very bottom with 140px extra clearance
+      const minY = Math.min(0, -(contentHeight * canvasPanZoom.scale - viewportHeight + 140));
+      canvasPanZoom.y = Math.min(maxY, Math.max(minY, canvasPanZoom.y));
+
+      const contentWidth = 1100;
+      const viewportWidth = viewport.clientWidth || 900;
+      const minX = Math.min(0, -(contentWidth * canvasPanZoom.scale - viewportWidth + 80));
+      const maxX = Math.max(0, (viewportWidth - contentWidth * canvasPanZoom.scale) / 2 + 100);
+      canvasPanZoom.x = Math.min(maxX, Math.max(minX, canvasPanZoom.x));
+    }
+
+    function updateCanvasTransform() {
+      const el = document.getElementById("treeCanvasInner");
+      const lbl = document.getElementById("lblCanvasZoom");
+      if (el) {
+        el.style.transform = `translate(${canvasPanZoom.x}px, ${canvasPanZoom.y}px) scale(${canvasPanZoom.scale})`;
+      }
+      if (lbl) {
+        lbl.innerText = `${Math.round(canvasPanZoom.scale * 100)}%`;
+      }
+      updateScrollThumbUI();
+      updatePhaseBadgeUI();
+    }
+
+    function updateScrollThumbUI() {
+      const track = document.getElementById("treeScrollTrack");
+      const thumb = document.getElementById("treeScrollThumb");
+      const viewport = document.getElementById("treeCanvasViewport");
+      const inner = document.getElementById("treeCanvasInner");
+      if (!track || !thumb || !viewport || !inner) return;
+
+      const contentHeight = getTreeContentHeight();
+      const viewportHeight = viewport.clientHeight || 650;
+      const maxY = 40;
+      const minY = Math.min(0, -(contentHeight * canvasPanZoom.scale - viewportHeight + 140));
+      const totalRange = maxY - minY;
+
+      if (totalRange <= 0) return;
+      const currentScroll = maxY - canvasPanZoom.y;
+      const frac = Math.min(1, Math.max(0, currentScroll / totalRange));
+
+      const availableTrack = track.clientHeight - thumb.clientHeight;
+      const thumbTop = frac * availableTrack;
+      thumb.style.transform = `translateY(${thumbTop}px)`;
+    }
+
+    function updatePhaseBadgeUI() {
+      const txt = document.getElementById("treeCurrentPhaseText");
+      if (!txt) return;
+
+      const f1 = document.getElementById("fase-1");
+      const f2 = document.getElementById("fase-2");
+      const f3 = document.getElementById("fase-3");
+      const scale = canvasPanZoom.scale || 1;
+
+      // Ambang batas dinamis berbasis elemen nyata dikali skala saat ini
+      const f2Trigger = f2 ? (f2.offsetTop * scale - 120) : 1100;
+      const f3Trigger = f3 ? (f3.offsetTop * scale - 120) : 2300;
+      const currentScrollY = -canvasPanZoom.y;
+
+      let activePhase = 'fase-1';
+      if (currentScrollY >= f3Trigger) {
+        txt.innerText = (COURSE.slides[state.currentSlide].phaseJumps || [])[2]?.label || "Fase 3";
+        activePhase = 'fase-3';
+      } else if (currentScrollY >= f2Trigger) {
+        txt.innerText = (COURSE.slides[state.currentSlide].phaseJumps || [])[1]?.label || "Fase 2";
+        activePhase = 'fase-2';
+      } else {
+        txt.innerText = (COURSE.slides[state.currentSlide].phaseJumps || [])[0]?.label || "Fase 1";
+        activePhase = 'fase-1';
+      }
+
+      // Sinkronkan styling tombol pintas Fase 1/2/3 di toolbar atas
+      ['fase-1', 'fase-2', 'fase-3'].forEach(p => {
+        const btn = document.getElementById(p === 'fase-1' ? 'btnJumpFase1' : (p === 'fase-2' ? 'btnJumpFase2' : 'btnJumpFase3'));
+        if (btn) {
+          if (p === activePhase) {
+            btn.className = "px-2.5 py-1 rounded-lg bg-white dark:bg-brand-darkSurface text-brand-primary dark:text-brand-lightBlue font-bold shadow-sm transition-all cursor-pointer";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-brand-darkSurface text-slate-700 dark:text-slate-300 transition-all cursor-pointer";
+          }
+        }
+      });
+    }
+
+    function scrollTreeStep(dir) {
+      playTone('click');
+      const viewport = document.getElementById("treeCanvasViewport");
+      const inner = document.getElementById("treeCanvasInner");
+      if (!viewport || !inner) return;
+
+      const step = 340;
+      const contentHeight = getTreeContentHeight();
+      const viewportHeight = viewport.clientHeight || 650;
+      const maxY = 40;
+      const minY = Math.min(0, -(contentHeight * canvasPanZoom.scale - viewportHeight + 140));
+
+      if (dir === 'up') {
+        canvasPanZoom.y = Math.min(maxY, canvasPanZoom.y + step);
+      } else if (dir === 'down') {
+        canvasPanZoom.y = Math.max(minY, canvasPanZoom.y - step);
+      } else if (dir === 'top') {
+        canvasPanZoom.y = maxY;
+      } else if (dir === 'bottom') {
+        canvasPanZoom.y = minY;
+      }
+      clampCanvasBounds();
+      updateCanvasTransform();
+    }
+
+    function zoomInCanvas() {
+      playTone('click');
+      canvasPanZoom.scale = Math.min(2.0, Math.round((canvasPanZoom.scale + 0.15) * 100) / 100);
+      clampCanvasBounds();
+      updateCanvasTransform();
+    }
+
+    function zoomOutCanvas() {
+      playTone('click');
+      canvasPanZoom.scale = Math.max(0.4, Math.round((canvasPanZoom.scale - 0.15) * 100) / 100);
+      clampCanvasBounds();
+      updateCanvasTransform();
+    }
+
+    function resetCanvasZoom() {
+      playTone('click');
+      canvasPanZoom.scale = 1;
+      canvasPanZoom.x = 0;
+      canvasPanZoom.y = 40;
+      clampCanvasBounds();
+      updateCanvasTransform();
+    }
+
+    function jumpToPhase(phaseId) {
+      playTone('click');
+      const target = document.getElementById(phaseId);
+      if (!target) return;
+      const scale = canvasPanZoom.scale || 1;
+      const rect = target.offsetTop * scale;
+      canvasPanZoom.x = 0;
+      canvasPanZoom.y = -rect + 30;
+      clampCanvasBounds();
+      updateCanvasTransform();
+    }
+
+    function initTreeCanvasPanZoom() {
+      const viewport = document.getElementById("treeCanvasViewport");
+      if (!viewport) return;
+
+      canvasPanZoom.scale = 1;
+      canvasPanZoom.x = 0;
+      canvasPanZoom.y = 40;
+      clampCanvasBounds();
+      updateCanvasTransform();
+
+      // Pan by Mouse Drag
+      viewport.onmousedown = (e) => {
+        if (e.target.closest('button, select, a, input, #treeScrollTrack, #treeScrollThumb')) return;
+        canvasPanZoom.isPanning = true;
+        canvasPanZoom.startX = e.clientX - canvasPanZoom.x;
+        canvasPanZoom.startY = e.clientY - canvasPanZoom.y;
+      };
+
+      window.addEventListener("mousemove", (e) => {
+        if (!canvasPanZoom.isPanning) return;
+        canvasPanZoom.x = e.clientX - canvasPanZoom.startX;
+        canvasPanZoom.y = e.clientY - canvasPanZoom.startY;
+        clampCanvasBounds();
+        updateCanvasTransform();
+      });
+
+      window.addEventListener("mouseup", () => {
+        canvasPanZoom.isPanning = false;
+      });
+
+      // Mouse Wheel Navigation: Scroll Vertically by default, Ctrl+Wheel to Zoom, Shift+Wheel to Scroll Horizontally
+      viewport.onwheel = (e) => {
+        e.preventDefault();
+        if (e.ctrlKey || e.metaKey) {
+          // Pinch or Ctrl + Wheel = Zoom
+          const delta = e.deltaY < 0 ? 0.08 : -0.08;
+          canvasPanZoom.scale = Math.min(2.0, Math.max(0.4, canvasPanZoom.scale + delta));
+        } else if (e.shiftKey) {
+          // Shift + Wheel = Scroll Horizontal
+          canvasPanZoom.x -= (e.deltaY || e.deltaX) * 0.9;
+        } else {
+          // Natural Wheel = Scroll Vertikal!
+          canvasPanZoom.y -= e.deltaY * 0.9;
+          if (Math.abs(e.deltaX) > 0) {
+            canvasPanZoom.x -= e.deltaX * 0.9;
+          }
+        }
+        clampCanvasBounds();
+        updateCanvasTransform();
+      };
+
+      // Touch events for mobile
+      let touchStartX = 0, touchStartY = 0;
+      viewport.ontouchstart = (e) => {
+        if (e.touches.length === 1 && !e.target.closest('button, select, a, input, #treeScrollTrack, #treeScrollThumb')) {
+          canvasPanZoom.isPanning = true;
+          touchStartX = e.touches[0].clientX - canvasPanZoom.x;
+          touchStartY = e.touches[0].clientY - canvasPanZoom.y;
+        }
+      };
+
+      viewport.ontouchmove = (e) => {
+        if (canvasPanZoom.isPanning && e.touches.length === 1) {
+          canvasPanZoom.x = e.touches[0].clientX - touchStartX;
+          canvasPanZoom.y = e.touches[0].clientY - touchStartY;
+          clampCanvasBounds();
+          updateCanvasTransform();
+        }
+      };
+
+      viewport.ontouchend = () => {
+        canvasPanZoom.isPanning = false;
+      };
+    }
+
+    function initScrollbarThumbDrag() {
+      const track = document.getElementById("treeScrollTrack");
+      const thumb = document.getElementById("treeScrollThumb");
+      const viewport = document.getElementById("treeCanvasViewport");
+      const inner = document.getElementById("treeCanvasInner");
+      if (!track || !thumb || !viewport || !inner) return;
+
+      let isDraggingThumb = false;
+      let startMouseY = 0;
+      let startScrollY = 0;
+
+      track.onmousedown = (e) => {
+        e.stopPropagation();
+        const contentHeight = getTreeContentHeight();
+        const viewportHeight = viewport.clientHeight || 650;
+        const maxY = 40;
+        const minY = Math.min(0, -(contentHeight * canvasPanZoom.scale - viewportHeight + 140));
+        const totalRange = maxY - minY;
+
+        if (e.target === thumb) {
+          isDraggingThumb = true;
+          startMouseY = e.clientY;
+          startScrollY = canvasPanZoom.y;
+        } else {
+          // Click directly on track: jump to that percentage
+          const trackRect = track.getBoundingClientRect();
+          const clickY = e.clientY - trackRect.top;
+          const frac = Math.min(1, Math.max(0, clickY / track.clientHeight));
+          canvasPanZoom.y = maxY - frac * totalRange;
+          clampCanvasBounds();
+          updateCanvasTransform();
+        }
+      };
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDraggingThumb) return;
+        const trackRect = track.getBoundingClientRect();
+        const availableTrack = track.clientHeight - thumb.clientHeight;
+        if (availableTrack <= 0) return;
+
+        const deltaY = e.clientY - startMouseY;
+        const contentHeight = getTreeContentHeight();
+        const viewportHeight = viewport.clientHeight || 650;
+        const maxY = 40;
+        const minY = Math.min(0, -(contentHeight * canvasPanZoom.scale - viewportHeight + 140));
+        const totalRange = maxY - minY;
+
+        const scrollDelta = (deltaY / availableTrack) * totalRange;
+        canvasPanZoom.y = startScrollY - scrollDelta;
+        clampCanvasBounds();
+        updateCanvasTransform();
+      });
+
+      window.addEventListener("mouseup", () => {
+        isDraggingThumb = false;
+      });
+    }
+
+    // ========================================================================
+    // KEYBOARD NAVIGATION (WCAG 2.2 AA)
+    // ========================================================================
+    window.addEventListener("keydown", (e) => {
+      // 1. Abaikan navigasi jika modal HTML5 dialog sedang terbuka
+      if (document.querySelector("dialog[open]")) return;
+
+      const target = e.target;
+      const activeEl = document.activeElement;
+      const tag = target.tagName;
+
+      // Helper untuk mendeteksi elemen form/interaktif
+      const isInteractiveElement = (el) => {
+        if (!el) return false;
+        const t = el.tagName;
+        return t === 'BUTTON' || t === 'SUMMARY' || t === 'SELECT' || t === 'A' || 
+               t === 'INPUT' || t === 'TEXTAREA' || el.isContentEditable;
+      };
+
+      // 2. Space Bar: JANGAN toggle audio jika activeElement / target adalah elemen interaktif/form
+      if (e.key === " " || e.code === "Space") {
+        if (isInteractiveElement(activeEl) || isInteractiveElement(target) || 
+            target.closest('button, summary, select, a, input, textarea, [contenteditable="true"]')) {
+          return; // Biarkan browser menjalankan fungsi native (klik tombol, toggle details, dsb.)
+        }
+        e.preventDefault();
+        togglePlay();
+        return;
+      }
+
+      // 3. ARIA Tabs Navigation ([role="tablist"])
+      const tabBtn = target.closest('[role="tab"]');
+      const tablist = tabBtn ? tabBtn.closest('[role="tablist"]') : null;
+      if (tablist && tabBtn) {
+        const tabs = Array.from(tablist.querySelectorAll('[role="tab"]:not([disabled])'));
+        const idx = tabs.indexOf(tabBtn);
+        if (idx !== -1) {
+          let nextIdx = -1;
+          if (e.key === "ArrowRight") {
+            nextIdx = (idx + 1) % tabs.length;
+          } else if (e.key === "ArrowLeft") {
+            nextIdx = (idx - 1 + tabs.length) % tabs.length;
+          } else if (e.key === "Home") {
+            nextIdx = 0;
+          } else if (e.key === "End") {
+            nextIdx = tabs.length - 1;
+          }
+          if (nextIdx !== -1) {
+            e.preventDefault();
+            tabs[nextIdx].focus();
+            tabs[nextIdx].click();
+            return;
+          }
+        }
+      }
+
+      // 4. ARIA Quiz Options Navigation ([role="radiogroup"])
+      const radioBtn = target.closest('[role="radio"]');
+      const radiogroup = radioBtn ? radioBtn.closest('[role="radiogroup"]') : null;
+      if (radiogroup && radioBtn) {
+        const radios = Array.from(radiogroup.querySelectorAll('[role="radio"]:not([disabled])'));
+        const idx = radios.indexOf(radioBtn);
+        if (idx !== -1) {
+          let nextIdx = -1;
+          if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+            nextIdx = (idx + 1) % radios.length;
+          } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+            nextIdx = (idx - 1 + radios.length) % radios.length;
+          }
+          if (nextIdx !== -1) {
+            e.preventDefault();
+            radios[nextIdx].click();
+            setTimeout(() => {
+              const updatedRadios = document.querySelectorAll('[role="radiogroup"] [role="radio"]');
+              if (updatedRadios[nextIdx]) updatedRadios[nextIdx].focus();
+            }, 0);
+            return;
+          }
+        }
+      }
+
+      // 5. Cegah Arrow keys bocor ke slide navigation saat berada di kontrol interaktif lain
+      const isInputOrControl = 
+        tag === 'SELECT' || 
+        tag === 'BUTTON' || 
+        tag === 'SUMMARY' || 
+        tag === 'INPUT' || 
+        tag === 'TEXTAREA' || 
+        target.isContentEditable || 
+        target.closest('button, select, summary, input, textarea, [contenteditable="true"]');
+
+      if (isInputOrControl) return;
+
+      // 6. Slide Navigation Global (ArrowRight / ArrowLeft)
+      if (state.currentSlide === 10 && !state.quizCompleted) return;
+      if (e.key === "ArrowRight") {
+        goToNextSlide();
+      } else if (e.key === "ArrowLeft") {
+        goToPrevSlide();
+      }
+    });
+
+    // ========================================================================
+    // INITIALIZATION ON LOAD
+    // ========================================================================
+window.addEventListener("DOMContentLoaded", () => {
+      applyTheme();
+      initCheatSheet();
+      initHintTips();
+      initResources();
+      goToSlide(0);
+      updateOutlineUI();
+      document.querySelectorAll("dialog").forEach(d => {
+        d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+        d.addEventListener("close", () => {
+          if (state.lastFocusedElement) { try { state.lastFocusedElement.focus(); } catch (err) {} state.lastFocusedElement = null; }
+        });
+      });
+    });
+
+    function initCheatSheet() {
+      const grid = document.getElementById("tenggatGrid");
+      if (!grid) return;
+      const items = COURSE.tenggatCheatSheet || [];
+      if (!items.length) { grid.innerHTML = "<p class=\"text-xs text-slate-500 dark:text-slate-400 col-span-full text-center py-4\">No quick-reference cards defined.</p>"; return; }
+      grid.innerHTML = items.map(c => `
+        <div class="${UI.card} p-4 flex flex-col items-center text-center gap-1">
+          ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl">${c.icon}</span>` : ""}
+          <p class="text-2xl font-extrabold text-slate-900 dark:text-white">${esc(c.value)}</p>
+          <p class="${UI.label}">${esc(c.label)}</p>
+          ${c.title ? `<p class="text-xs font-bold text-slate-700 dark:text-slate-200">${esc(c.title)}</p>` : ""}
+          ${c.desc ? `<p class="text-[10px] text-slate-500 dark:text-slate-400">${esc(c.desc)}</p>` : ""}
+        </div>`).join("");
+    }
+
+    function initHintTips() {
+      const grid = document.getElementById("hintGrid");
+      if (!grid) return;
+      const items = COURSE.hintTips || [];
+      if (!items.length) { grid.innerHTML = "<p class=\"text-xs text-slate-500 dark:text-slate-400 col-span-full text-center py-4\">No navigation tips defined.</p>"; return; }
+      grid.innerHTML = items.map(c => `
+        <div class="${UI.card} p-4 flex items-start gap-3">
+          ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl shrink-0">${c.icon}</span>` : ""}
+          <div>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
+            ${c.desc ? `<p class="mt-1 ${UI.text}">${esc(c.desc)}</p>` : ""}
+          </div>
+        </div>`).join("");
+    }
+
+    function initResources() {
+      const panel = document.getElementById("tabContentResources");
+      if (!panel) return;
+      const items = COURSE.resources || [];
+      if (!items.length) return; // keep default empty
+      panel.innerHTML = `<div class="p-3 space-y-2">${items.map(r => `
+        <div class="${UI.card} p-3">
+          <div class="flex items-center gap-2">
+            ${r.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-base">${r.icon}</span>` : ""}
+            <p class="text-xs font-bold text-slate-900 dark:text-white">${esc(r.title)}</p>
+          </div>
+          ${r.desc ? `<p class="mt-1 ${UI.text}">${esc(r.desc)}</p>` : ""}
+          ${r.items && r.items.length ? `<ul class="mt-2 space-y-1 list-disc list-inside ${UI.text}">${r.items.map(it => `<li>${esc(it)}</li>`).join("")}</ul>` : ""}
+        </div>`).join("")}</div>`;
+    }
+  </script>
+</body>
+</html>
