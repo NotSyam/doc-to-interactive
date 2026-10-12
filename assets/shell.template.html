@@ -2759,8 +2759,10 @@
 
     function updateOutlineUI() {
       const container = document.getElementById("outlineNavList");
+      if (!container || !COURSE.units) return;
       container.innerHTML = COURSE.units.map((u, idx) => {
         const isCurrent = idx === state.currentSlide;
+        const isCompleted = state.completedSlides && state.completedSlides.has(idx);
         const isCertSlide = idx === COURSE.units.length - 1;
         const hasQuiz = (COURSE.slides || []).some(s => s.type === 'quiz');
         const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
@@ -2776,16 +2778,18 @@
               ${isCompleted ? 'check_circle' : (isUnlocked ? u.icon : 'lock')}
             </span>
             <div class="flex-1 truncate">
-              <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${u.title}</div>
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${esc(u.title)}</div>
             </div>
-            <span class="text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">${u.duration}</span>
+            <span class="text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">${esc(u.duration || '')}</span>
           </button>
         `;
       }).join('');
 
-      const pct = Math.round((state.completedSlides.size / COURSE.units.length) * 100);
-      document.getElementById("overallPercentage").innerText = `${pct}%`;
-      document.getElementById("badgeProgress").innerText = `${state.currentSlide + 1} / ${COURSE.units.length}`;
+      const pct = Math.round(((state.completedSlides ? state.completedSlides.size : 0) / COURSE.units.length) * 100);
+      const overallEl = document.getElementById("overallPercentage");
+      if (overallEl) overallEl.innerText = `${pct}%`;
+      const badgeEl = document.getElementById("badgeProgress");
+      if (badgeEl) badgeEl.innerText = `${state.currentSlide + 1} / ${COURSE.units.length}`;
     }
 
 
