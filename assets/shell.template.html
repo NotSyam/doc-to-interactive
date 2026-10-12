@@ -399,6 +399,10 @@
           </div>
 
           <div class="flex items-center gap-2">
+            <!-- Slide Gate Countdown Badge -->
+            <span id="slideGateNotice" class="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 transition-all">
+              <span class="material-symbols-outlined text-xs">hourglass_top</span><span>Kunci Terbuka: <b id="gateCountdownSec">10</b>s</span>
+            </span>
             <!-- Review Mode Toggle Pill -->
             <button onclick="toggleDevGating()" id="previewModeBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/30 flex items-center gap-1 cursor-pointer" title="Mode Preview: Bebas navigasi tanpa kunci timer">
               <span class="material-symbols-outlined text-xs shrink-0">lock_open_right</span>
@@ -749,6 +753,8 @@
       completedSlides: new Set([0]),
       isPlaying: false,
       audioRate: 1.0,
+      slideGateSecondsLeft: 10,
+      isGateTimerActive: false,
       participantName: '',
       participantNIP: '',
       participantJabatan: '',
@@ -756,15 +762,18 @@
       userAnswers: {},
       quizScore: 0,
       quizCompleted: false,
+      quizPassed: false,
+      quizAttemptCount: 0,
+      maxQuizAttempts: 5,
       quizIndex: 0,
       quizOrder: null,
       isDarkMode: true,
       isMobileDrawerOpen: false,
       isDesktopSidebarCollapsed: false,
-      selectedSwimlaneRole: "Semua",
-      participantName: "Peserta Pelatihan",
-      participantNIP: "-"
+      selectedSwimlaneRole: "Semua"
     };
+
+    let gateTimerInterval = null;
 
     // ========================================================================
     // TACTILE WEB AUDIO API SYNTHESIZER
@@ -951,9 +960,27 @@
     function goToSlide(slideIndex) {
       if (slideIndex < 0 || slideIndex >= COURSE.units.length) return;
       
-      if (!COURSE.course.devMode && !state.completedSlides.has(slideIndex) && slideIndex > state.currentSlide + 1) {
+      // Gating khusus slide sertifikat / penutup jika ada kuis
+      const certSlideIndex = COURSE.units.length - 1;
+      const hasQuiz = (COURSE.slides || []).some(s => s.type === 'quiz');
+      const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
+      if (hasQuiz && slideIndex === certSlideIndex && (!state.quizPassed || state.quizScore < passingScore)) {
         playTone('error');
-        alert(`Halaman ini masih terkunci! Selesaikan materi Slide ${state.currentSlide + 1} terlebih dahulu.`);
+        alert(`Halaman Penutup & Sertifikat masih terkunci! Anda wajib menyelesaikan Kuis Evaluasi dengan nilai minimal ${passingScore} terlebih dahulu.`);
+        return;
+      }
+
+      if (!COURSE.course.devMode && !state.completedSlides.has(slideIndex) && slideIndex > state.currentSlide && !state.completedSlides.has(slideIndex - 1)) {
+        playTone('error');
+        alert("Selesaikan materi sebelumnya terlebih dahulu!");
+        return;
+      }
+
+      // Cek apakah slide saat ini masih terkunci oleh timer gating
+      const gatingEnabled = COURSE.course.enableGatingTimer !== false;
+      if (gatingEnabled && state.isGateTimerActive && slideIndex > state.currentSlide && !state.completedSlides.has(state.currentSlide)) {
+        playTone('error');
+        alert(`Harap pelajari materi slide saat ini terlebih dahulu! Kunci akan terbuka dalam ${state.slideGateSecondsLeft} detik.`);
         return;
       }
 
@@ -963,9 +990,9 @@
       updateSeekbarUI(0, 0, 45);
 
       state.currentSlide = slideIndex;
-      state.completedSlides.add(slideIndex);
       
       renderCurrentSlide();
+      startSlideGatingTimer();
       updateNavigationControls();
       updateOutlineUI();
       updateTranscriptAndCC();
@@ -975,6 +1002,89 @@
 
       // Scroll stage viewport back to top
       document.getElementById("slideBody").scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startSlideGatingTimer() {
+      clearInterval(gateTimerInterval);
+      const isAlreadyCompleted = state.completedSlides.has(state.currentSlide);
+      const noticeEl = document.getElementById("slideGateNotice");
+      const currentSlideDef = (COURSE.slides && COURSE.slides[state.currentSlide]) || {};
+      const isQuizOrCert = currentSlideDef.type === 'quiz' || currentSlideDef.type === 'summaryCertificate' || state.currentSlide >= COURSE.units.length - 2;
+      const gatingEnabled = COURSE.course.enableGatingTimer !== false;
+
+      if (isAlreadyCompleted || isQuizOrCert || !gatingEnabled) {
+        state.slideGateSecondsLeft = 0;
+        state.isGateTimerActive = false;
+        if (noticeEl) {
+          noticeEl.className = "text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 transition-all";
+          noticeEl.innerHTML = `<span class="material-symbols-outlined text-xs">check_circle</span><span>Selesai Dipelajari</span>`;
+        }
+        updateGatingNextButton(true);
+        updateOutlineUI();
+        return;
+      }
+
+      state.slideGateSecondsLeft = COURSE.course.gatingSeconds || 10;
+      state.isGateTimerActive = true;
+      updateGatingNextButton(false);
+      updateOutlineUI();
+
+      if (noticeEl) {
+        noticeEl.className = "text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 transition-all";
+        noticeEl.innerHTML = `<span class="material-symbols-outlined text-xs">hourglass_top</span><span>Kunci Terbuka: <b id="gateCountdownSec">${state.slideGateSecondsLeft}</b>s</span>`;
+      }
+
+      gateTimerInterval = setInterval(() => {
+        state.slideGateSecondsLeft -= 1;
+        const currentSecEl = document.getElementById("gateCountdownSec");
+        const currentNoticeEl = document.getElementById("slideGateNotice");
+
+        if (currentSecEl) {
+          currentSecEl.innerText = Math.max(0, state.slideGateSecondsLeft);
+        }
+
+        const nextTxt = document.getElementById("nextBtnText");
+        if (nextTxt && state.isGateTimerActive && state.slideGateSecondsLeft > 0) {
+          nextTxt.innerText = `Tunggu (${state.slideGateSecondsLeft}s)`;
+        }
+
+        if (state.slideGateSecondsLeft <= 0) {
+          clearInterval(gateTimerInterval);
+          state.isGateTimerActive = false;
+          completeCurrentSlideTask();
+          playTone('success');
+
+          if (currentNoticeEl) {
+            currentNoticeEl.className = "text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 transition-all";
+            currentNoticeEl.innerHTML = `<span class="material-symbols-outlined text-xs">check_circle</span><span>Selesai Dipelajari</span>`;
+          }
+
+          updateGatingNextButton(true);
+          updateOutlineUI();
+        }
+      }, 1000);
+    }
+
+    function updateGatingNextButton(isUnlocked) {
+      const btnNext = document.getElementById("btnNextSlide");
+      const nextTxt = document.getElementById("nextBtnText");
+      if (!btnNext) return;
+
+      if (isUnlocked) {
+        btnNext.disabled = false;
+        btnNext.classList.remove("opacity-40", "cursor-not-allowed");
+        btnNext.classList.add("cursor-pointer", "btn-next-ready");
+        if (nextTxt) {
+          nextTxt.innerText = (state.currentSlide === COURSE.units.length - 1) ? "Selesai" : "Lanjut";
+        }
+      } else {
+        btnNext.disabled = true;
+        btnNext.classList.add("opacity-40", "cursor-not-allowed");
+        btnNext.classList.remove("cursor-pointer", "btn-next-ready");
+        if (nextTxt) {
+          nextTxt.innerText = `Tunggu (${state.slideGateSecondsLeft}s)`;
+        }
+      }
     }
 
     function goToNextSlide() {
@@ -991,7 +1101,9 @@
 
     function completeCurrentSlideTask() {
       state.completedSlides.add(state.currentSlide);
-      COURSE.units[state.currentSlide].completed = true;
+      if (COURSE.units && COURSE.units[state.currentSlide]) {
+        COURSE.units[state.currentSlide].completed = true;
+      }
       updateOutlineUI();
       updateNavigationControls();
     }
@@ -1969,6 +2081,30 @@
       }
       const idx = state.quizIndex;
       const q = qs[idx];
+      const maxAttempts = (COURSE.course && COURSE.course.maxQuizAttempts) || 5;
+
+      // Participant Identity Card (shown on Quiz)
+      const participantCard = `
+        <div class="${UI.card} p-4 mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs border border-slate-200 dark:border-brand-darkBorder bg-slate-50/50 dark:bg-brand-darkSubtle/40">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap <span class="text-rose-500">*</span></label>
+            <input type="text" id="participantNameInput" value="${esc(state.participantName || '')}" oninput="state.participantName = this.value" placeholder="Nama lengkap peserta..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-xs focus:outline-none focus:border-brand-primary" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">NIP / NRP <span class="text-rose-500">*</span></label>
+            <input type="text" id="participantNipInput" value="${esc(state.participantNIP || '')}" oninput="state.participantNIP = this.value" placeholder="NIP / NRP..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-xs focus:outline-none focus:border-brand-primary" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Jabatan</label>
+            <input type="text" id="participantJabatanInput" value="${esc(state.participantJabatan || '')}" oninput="state.participantJabatan = this.value" placeholder="Jabatan peserta..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-xs focus:outline-none focus:border-brand-primary" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Divisi / Unit Kerja</label>
+            <input type="text" id="participantDivisiInput" value="${esc(state.participantDivisi || '')}" oninput="state.participantDivisi = this.value" placeholder="Divisi / Departemen..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-white dark:bg-brand-darkSurface text-slate-900 dark:text-white text-xs focus:outline-none focus:border-brand-primary" />
+          </div>
+        </div>
+      `;
+
       // Progress indicator
       const dots = qs.map((_, i) => {
         const answered = state.userAnswers[i] != null;
@@ -2005,9 +2141,14 @@
 
       container.innerHTML = `
         <div class="space-y-4">
+          ${participantCard}
           <div class="flex items-center justify-between gap-2">
             <div class="flex flex-wrap gap-1.5">${dots}</div>
-            <span class="text-xs text-slate-500 dark:text-slate-400">${idx+1} / ${total}</span>
+            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <span>Percobaan: <b>${(state.quizAttemptCount || 0) + 1} / ${maxAttempts}</b></span>
+              <span>•</span>
+              <span>Soal ${idx+1} / ${total}</span>
+            </div>
           </div>
           <div class="${UI.card} p-5 space-y-3">
             <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed">${esc(q.question)}</p>
@@ -2016,7 +2157,7 @@
           <div class="flex items-center justify-between gap-2">
             <button onclick="quizJump(${Math.max(0, idx-1)})" ${idx === 0 ? 'disabled' : ''} class="px-4 py-2 rounded-lg text-xs font-bold ${idx === 0 ? 'bg-slate-100 dark:bg-brand-darkSubtle text-slate-400 cursor-not-allowed' : 'bg-slate-100 dark:bg-brand-darkSubtle text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-brand-darkBorder'} btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">arrow_back</span>Prev</button>
             ${idx === total - 1
-              ? `<button onclick="submitQuizEvaluation()" class="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600 btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">check_circle</span>Submit</button>`
+              ? `<button onclick="submitQuizEvaluation()" class="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600 btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">check_circle</span>Submit & Hitung Nilai</button>`
               : `<button onclick="quizJump(${idx+1})" class="px-4 py-2 rounded-lg text-xs font-bold bg-brand-primary text-white hover:bg-brand-primaryHover btn-tactile flex items-center gap-1">Next<span class="material-symbols-outlined text-base">arrow_forward</span></button>`}
           </div>
         </div>`;
@@ -2026,7 +2167,13 @@
       const total = qs.length;
       const correct = qs.reduce((acc, q, i) => acc + (isAnswerCorrect(q, state.userAnswers[i]) ? 1 : 0), 0);
       const pct = Math.round((correct / total) * 100);
-      const passed = pct >= (COURSE.course.passingScore || 80);
+      const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
+      const maxAttempts = (COURSE.course && COURSE.course.maxQuizAttempts) || 5;
+      const passed = pct >= passingScore;
+      const remainingAttempts = Math.max(0, maxAttempts - state.quizAttemptCount);
+      const isMaxReached = state.quizAttemptCount >= maxAttempts && !passed;
+      const certSlideIndex = COURSE.units.length - 1;
+
       const rows = qs.map((q, i) => {
         const userAns = state.userAnswers[i];
         const isCorrect = isAnswerCorrect(q, userAns);
@@ -2038,23 +2185,61 @@
             <p class="text-sm font-bold text-slate-900 dark:text-white flex-1">${esc(q.question)}</p>
           </div>
           <div class="ml-7 space-y-1 text-xs">
-            <p class="text-slate-600 dark:text-slate-400">Your answer: <span class="${isCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'} font-semibold">${userDisplay || "—"}</span></p>
-            ${!isCorrect ? `<p class="text-slate-600 dark:text-slate-400">Correct: <span class="text-emerald-700 dark:text-emerald-300 font-semibold">${correctDisplay}</span></p>` : ""}
+            <p class="text-slate-600 dark:text-slate-400">Jawaban Anda: <span class="${isCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'} font-semibold">${userDisplay || "—"}</span></p>
+            ${!isCorrect ? `<p class="text-slate-600 dark:text-slate-400">Jawaban Benar: <span class="text-emerald-700 dark:text-emerald-300 font-semibold">${correctDisplay}</span></p>` : ""}
             ${q.explanation ? `<p class="text-slate-500 dark:text-slate-400 mt-2 italic">${esc(q.explanation)}</p>` : ""}
           </div>
         </div>`;
       }).join("");
+
       container.innerHTML = `
         <div class="space-y-4">
-          <div class="text-center ${UI.card} p-6">
-            <p class="text-5xl font-extrabold ${passed ? 'text-emerald-500' : 'text-rose-500'}">${pct}<span class="text-2xl">/100</span></p>
-            <p class="mt-2 text-sm ${passed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}">${passed ? 'Lulus!' : 'Belum lulus'}</p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">${correct} dari ${total} benar</p>
+          <div class="p-6 rounded-2xl ${passed ? 'bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500 text-emerald-900 dark:text-emerald-200' : 'bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-500 text-rose-900 dark:text-rose-200'} shadow-xl space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl ${passed ? 'bg-emerald-600' : 'bg-rose-600'} text-white flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-2xl">${passed ? 'workspace_premium' : (isMaxReached ? 'block' : 'cancel')}</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-black">${passed ? 'SELAMAT! ANDA DINYATAKAN LULUS' : (isMaxReached ? 'BATAS MAKSIMAL KESEMPATAN HABIS' : 'BELUM MEMENUHI NILAI KELULUSAN')}</h3>
+                <p class="text-xs ${passed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}">
+                  ${passed 
+                    ? `Nilai Anda telah memenuhi syarat batas kelulusan minimal (${passingScore}) pada percobaan ke-${state.quizAttemptCount}.` 
+                    : (isMaxReached 
+                        ? `Anda telah menggunakan seluruh ${maxAttempts} kali kesempatan kuis dan belum mencapai nilai ${passingScore}. Silakan hubungi Tim Pelatihan / PIC Pelatihan.` 
+                        : `Skor Anda belum mencapai ambang batas minimal ${passingScore}. Data remedial tidak dikirim ke sheet untuk mencegah data spam.`)}
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-brand-darkSurface p-4 rounded-xl border ${passed ? 'border-emerald-200 dark:border-emerald-800' : 'border-rose-200 dark:border-rose-800'} text-center">
+              <div><span class="text-[10px] text-slate-500 block">NILAI AKHIR</span><span class="text-2xl font-black ${passed ? 'text-emerald-600' : 'text-rose-600'}">${pct}</span></div>
+              <div><span class="text-[10px] text-slate-500 block">JAWABAN BENAR</span><span class="text-2xl font-black text-slate-800 dark:text-white">${correct} / ${total}</span></div>
+              <div><span class="text-[10px] text-slate-500 block">PERCOBAAN</span><span class="text-2xl font-black text-slate-800 dark:text-white">${state.quizAttemptCount} / ${maxAttempts}</span></div>
+              <div><span class="text-[10px] text-slate-500 block">STATUS</span><span class="text-xs font-black ${passed ? 'text-emerald-600' : 'text-rose-600'} uppercase mt-2 block">${passed ? 'LULUS' : 'REMEDIAL'}</span></div>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+              ${passed ? `
+                <p class="text-xs text-emerald-800 dark:text-emerald-300">✓ Data kelulusan berhasil disinkronisasi. Akses halaman Penutup & Sertifikat telah terbuka!</p>
+                <button onclick="goToSlide(${certSlideIndex})" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md btn-tactile cursor-pointer">
+                  <span>Lanjut ke Penutup & Sertifikat</span>
+                  <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </button>
+              ` : `
+                <p class="text-xs text-rose-800 dark:text-rose-300">${isMaxReached ? 'Kesempatan habis. Kuis terkunci permanen.' : `Sisa kesempatan kuis: ${remainingAttempts} kali.`}</p>
+                ${!isMaxReached ? `
+                  <button onclick="resetQuiz()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md btn-tactile cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">refresh</span>
+                    <span>Ulangi Kuis (Sisa ${remainingAttempts}x)</span>
+                  </button>
+                ` : `
+                  <button disabled class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-300 text-slate-500 font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed opacity-50">
+                    <span class="material-symbols-outlined text-sm">lock</span>
+                    <span>Kuis Terkunci (Hubungi Admin)</span>
+                  </button>
+                `}
+              `}
+            </div>
           </div>
           ${rows}
-          <div class="flex justify-center gap-2">
-            <button onclick="resetQuiz()" class="px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 dark:bg-brand-darkSubtle text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-brand-darkBorder btn-tactile flex items-center gap-1"><span class="material-symbols-outlined text-base">refresh</span>Ulangi</button>
-          </div>
         </div>`;
     }
 
@@ -2090,7 +2275,6 @@
       playTone('click');
       state.quizIndex = i;
       const body = document.getElementById("slideBody");
-      // Find quiz container
       const container = body.querySelector('#quizContainer') || body;
       renderQuizSlide(container);
     }
@@ -2105,32 +2289,63 @@
     function submitQuizEvaluation() {
       const qs = getCurrentQuizQuestions();
       const total = qs.length;
+
+      // Validasi Identitas Peserta
+      if (!state.participantName || !state.participantName.trim()) {
+        playTone('error');
+        alert("Harap isi Nama Lengkap Anda sebelum mengirim kuis!");
+        const input = document.getElementById("participantNameInput");
+        if (input) input.focus();
+        return;
+      }
+      if (!state.participantNIP || !state.participantNIP.trim()) {
+        playTone('error');
+        alert("Harap isi NIP/NRP Anda sebelum mengirim kuis!");
+        const input = document.getElementById("participantNipInput");
+        if (input) input.focus();
+        return;
+      }
+
       const unanswered = qs.reduce((acc, _, i) => acc + (state.userAnswers[i] == null || state.userAnswers[i] === "" ? 1 : 0), 0);
       if (unanswered > 0) {
         playTone('error');
         if (!confirm(`Masih ada ${unanswered} soal belum dijawab. Submit anyway?`)) return;
       }
+
+      const maxAttempts = (COURSE.course && COURSE.course.maxQuizAttempts) || 5;
+      const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
+
+      // Increment Attempt Counter
+      state.quizAttemptCount = (state.quizAttemptCount || 0) + 1;
+
       const correct = qs.reduce((acc, q, i) => acc + (isAnswerCorrect(q, state.userAnswers[i]) ? 1 : 0), 0);
       state.quizScore = Math.round((correct / total) * 100);
+      state.quizPassed = state.quizScore >= passingScore;
       state.quizCompleted = true;
-      if (state.quizScore >= (COURSE.course.passingScore || 80)) {
+
+      if (state.quizPassed) {
         playTone('fanfare');
-        try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch (e) {}
+        try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch (e) {}
       } else {
         playTone('error');
       }
 
-      // Sync quiz result to Google Sheets Webhook if configured
-      const webhookUrl = (currentSlide() && currentSlide().webhookUrl) || (COURSE.course && COURSE.course.webhookUrl);
-      if (webhookUrl) {
+      // ANTI-SPAM LOGIC:
+      // Hanya sinkronkan ke Webhook jika LULUS (>= 80) ATAU kesempatan kuis habis (attempt ke-5)
+      const shouldSyncWebhook = state.quizPassed || (state.quizAttemptCount >= maxAttempts);
+      const curSlide = (COURSE.slides && COURSE.slides[state.currentSlide]) || {};
+      const webhookUrl = curSlide.webhookUrl || (COURSE.course && COURSE.course.webhookUrl);
+
+      if (webhookUrl && shouldSyncWebhook) {
         try {
           const payload = {
-            nama: state.participantName || '-',
-            nip: state.participantNIP || '-',
-            jabatan: state.participantJabatan || '-',
-            divisi: state.participantDivisi || '-',
+            nama: state.participantName.trim(),
+            nip: state.participantNIP.trim(),
+            jabatan: (state.participantJabatan || "-").trim(),
+            divisi: (state.participantDivisi || "-").trim(),
             skor: state.quizScore,
-            status: state.quizScore >= (COURSE.course.passingScore || 80) ? 'LULUS' : 'REMEDIAL'
+            status: state.quizPassed ? "LULUS (>= " + passingScore + ")" : (state.quizAttemptCount >= maxAttempts ? "TIDAK LULUS (MAX ATTEMPT)" : "REMEDIAL (< " + passingScore + ")"),
+            attempt: state.quizAttemptCount
           };
           fetch(webhookUrl, {
             method: 'POST',
@@ -2141,13 +2356,21 @@
           console.warn('Webhook fetch error:', e);
         }
       }
+
       const body = document.getElementById("slideBody");
       const container = body.querySelector('#quizContainer') || body;
       renderQuizSlide(container);
       updateNavigationControls();
+      updateOutlineUI();
     }
 
     function resetQuiz() {
+      const maxAttempts = (COURSE.course && COURSE.course.maxQuizAttempts) || 5;
+      if (state.quizAttemptCount >= maxAttempts && !state.quizPassed) {
+        playTone('error');
+        alert("Batas maksimal 5 kali kesempatan kuis telah habis! Silakan hubungi Tim HC / PIC Pelatihan.");
+        return;
+      }
       playTone('click');
       state.userAnswers = {};
       state.quizScore = 0;
@@ -2480,8 +2703,11 @@
       const container = document.getElementById("outlineNavList");
       container.innerHTML = COURSE.units.map((u, idx) => {
         const isCurrent = idx === state.currentSlide;
-        const isCompleted = state.completedSlides.has(idx);
-        const isUnlocked = COURSE.course.devMode || isCompleted || idx <= state.currentSlide + 1;
+        const isCertSlide = idx === COURSE.units.length - 1;
+        const hasQuiz = (COURSE.slides || []).some(s => s.type === 'quiz');
+        const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
+        const certUnlocked = !hasQuiz || (state.quizPassed && state.quizScore >= passingScore);
+        const isUnlocked = COURSE.course.devMode || (isCertSlide ? certUnlocked : (isCompleted || idx <= state.currentSlide + 1));
 
         let iconColor = isCurrent ? "text-brand-primary dark:text-brand-lightBlue" : (isCompleted ? "text-brand-primary" : "text-slate-400");
         let activeBg = isCurrent ? "bg-brand-primary/10 dark:bg-brand-darkSubtle border-l-4 border-brand-primary dark:border-brand-lightBlue" : "hover:bg-slate-100 dark:hover:bg-brand-darkSubtle/60";

@@ -10,7 +10,10 @@
     "totalQuestions": 4,
     "devMode": true,
     "defaultDark": true,
-    "enableGatingTimer": false
+    "enableGatingTimer": true,
+    "gatingSeconds": 10,
+    "maxQuizAttempts": 5,
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbyjbQGeDAht8zi62giuBvkRH5eiQLpD-lvQkP5xB4ibor6aMu25yZsm5JyvTN_HrdL0/exec"
   },
 
   "brand": {

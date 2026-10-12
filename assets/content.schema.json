@@ -62,7 +62,19 @@
         },
         "enableGatingTimer": {
           "type": "boolean",
-          "default": false
+          "default": true
+        },
+        "gatingSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10,
+          "description": "Duration in seconds each slide is locked before user can navigate forward"
+        },
+        "maxQuizAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5,
+          "description": "Maximum number of quiz attempts allowed before permanent lock"
         },
         "webhookUrl": {
           "type": "string",
