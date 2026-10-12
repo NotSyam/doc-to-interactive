@@ -271,7 +271,7 @@
       <button onclick="openTerminologiModal()" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/30 text-[11px] font-bold transition-all cursor-pointer" title="Kamus Terminologi & Definisi SOP (Poin 4)">
         <span class="material-symbols-outlined text-sm shrink-0">menu_book</span>
         <span class="hidden md:inline">Terminologi</span>
-        <span class="px-1.5 py-0.2 bg-brand-primary text-white text-[9px] rounded-full font-mono font-bold">7</span>
+        <span id="terminologiBadgeCount" class="px-1.5 py-0.2 bg-brand-primary text-white text-[9px] rounded-full font-mono font-bold">18</span>
       </button>
 
       <!-- PETUNJUK / HINT NAVIGASI -->
@@ -574,7 +574,7 @@
 
     <!-- Modal Footer -->
     <footer class="p-3 px-5 border-t border-slate-200 dark:border-brand-darkBorder bg-slate-50 dark:bg-brand-darkSubtle flex items-center justify-between">
-      <span class="text-xs text-slate-500 font-medium">Total 7 Terminologi Standar Prosedur</span>
+      <span id="terminologiFooterCount" class="text-xs text-slate-500 font-medium">Total 18 Terminologi Resmi Poin 4 WI</span>
       <button onclick="closeTerminologiModal()" class="px-4 py-1.5 rounded-lg bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-semibold cursor-pointer">
         Tutup
       </button>
@@ -597,7 +597,7 @@
 
     <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300" id="hintGrid">
       <!-- Populated by initHintTips() from COURSE.hintTips -->
-    >
+    </div>
 
     <footer class="mt-5 text-right">
       <button onclick="closeHintModal()" class="px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-bold hover:bg-brand-primaryHover cursor-pointer">
@@ -1184,8 +1184,8 @@
     function uiTitle(title, lead) {
       return `
         <header class="mb-4 sm:mb-5">
-          <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">${title}</h2>
-          ${lead ? `<p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">${lead}</p>` : ""}
+          <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">${esc(title)}</h2>
+          ${lead ? `<div class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">${formatRichText(lead)}</div>` : ""}
         </header>`;
     }
 
@@ -1318,6 +1318,72 @@
       return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
+    function formatRichText(input) {
+      if (input == null) return "";
+      let str = String(input);
+      // 1. Markdown bold & italic support
+      str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+      // 2. Allowed HTML tags whitelist
+      const allowedTags = /<\/?(strong|b|em|i|u|br|p|span|code|mark|small|ul|ol|li)(?:\s+class="[^"]*")?\s*\/?>/gi;
+      const tokens = [];
+      str = str.replace(allowedTags, (match) => {
+        tokens.push(match);
+        return '___TAG_TOKEN_' + (tokens.length - 1) + '___';
+      });
+
+      // 3. Escape all other brackets & special characters (< 80, &, etc.)
+      str = str.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&#039;');
+
+      // 4. Restore whitelisted safe tags
+      tokens.forEach((tag, idx) => {
+        str = str.replace('___TAG_TOKEN_' + idx + '___', tag);
+      });
+
+      // 5. Convert newlines to <br> if no block HTML tags exist
+      if (!str.includes('<p>') && !str.includes('<li>')) {
+        str = str.replace(/\r?\n/g, '<br>');
+      }
+      return str;
+    }
+
+    function generateFallbackNarration(s, u) {
+      if (!s) return "Transkrip narasi untuk halaman ini sedang dipersiapkan.";
+      let parts = [];
+      if (s.heroTitle) parts.push(s.heroTitle);
+      else if (s.title) parts.push(s.title);
+      else if (u && u.title) parts.push(u.title);
+
+      if (s.heroLead) parts.push(s.heroLead);
+      else if (s.lead) parts.push(s.lead);
+
+      if (s.cards && s.cards.length) {
+        s.cards.forEach(c => {
+          let t = c.title ? `<strong>${c.title}</strong>: ` : "";
+          let d = c.desc || c.body || "";
+          if (t || d) parts.push(t + d);
+        });
+      } else if (s.tabs && s.tabs.length) {
+        s.tabs.forEach(tb => {
+          parts.push(`<em>${tb.label}</em>:`);
+          (tb.items || []).forEach(it => {
+            if (typeof it === 'string') parts.push(`• ${it}`);
+            else parts.push(`• ${it.t || it.doc || ''}: ${it.d || it.note || ''}`);
+          });
+        });
+      } else if (s.steps && s.steps.length) {
+        s.steps.forEach((st, i) => {
+          parts.push(`Langkah ${st.number || i+1}: ${st.title}. ${st.desc || ''}`);
+        });
+      }
+      return parts.join("\n\n") || "Silakan pelajari materi interaktif yang disajikan pada layar.";
+    }
+
     // ────────────────────────────────────────────────────────────────────────
     // TYPE 1: cover
     // ────────────────────────────────────────────────────────────────────────
@@ -1327,7 +1393,7 @@
           <span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl mt-0.5 shrink-0">${r.icon || "info"}</span>
           <div>
             <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(r.title)}</p>
-            <p class="mt-1 ${UI.text}">${esc(r.desc)}</p>
+            <div class="mt-1 ${UI.text}">${formatRichText(r.desc)}</div>
           </div>
         </div>`).join("");
       const skipTo = (typeof s.skipTo === "number") ? s.skipTo : 1;
@@ -1336,7 +1402,7 @@
           <div class="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-brand-primary to-[#1F548E] text-white shadow-lg">
             ${s.heroMeta ? `<div class="mb-2"><p class="text-xs font-semibold text-sky-200 tracking-wide font-mono">${esc(s.heroMeta)}</p></div>` : ""}
             <h2 class="mt-1 text-2xl sm:text-3xl font-extrabold leading-tight">${esc(s.heroTitle)}</h2>
-            ${s.heroLead ? `<p class="mt-3 text-sm text-blue-100 leading-relaxed">${esc(s.heroLead)}</p>` : ""}
+            ${s.heroLead ? `<div class="mt-3 text-sm text-blue-100 leading-relaxed">${formatRichText(s.heroLead)}</div>` : ""}
           </div>
           ${reasons ? `
             <div>
@@ -1365,8 +1431,8 @@
           ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl ${cols===1?'mt-0.5 shrink-0':''}">${c.icon}</span>` : ""}
           <div class="${cols===1?'flex-1':''}">
             <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
-            ${c.desc ? `<p class="mt-1 ${UI.text}">${esc(c.desc)}</p>` : ""}
-            ${c.body ? `<div class="mt-2 ${UI.text}">${c.body}</div>` : ""}
+            ${c.desc ? `<div class="mt-1 ${UI.text}">${formatRichText(c.desc)}</div>` : ""}
+            ${c.body ? `<div class="mt-2 ${UI.text}">${formatRichText(c.body)}</div>` : ""}
             ${c.tags && c.tags.length ? `<div class="mt-2 flex flex-wrap gap-1">${c.tags.map(t => `<span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue font-mono">${esc(t)}</span>`).join("")}</div>` : ""}
           </div>
         </div>`).join("");
@@ -1622,7 +1688,7 @@
           if (typeof it === 'string') {
             return `<li class="flex items-start gap-2 ${UI.text}"><span class="text-brand-primary dark:text-brand-lightBlue mt-0.5">•</span><span>${esc(it)}</span></li>`;
           }
-          return `<li class="p-3 rounded-lg border border-slate-100 dark:border-brand-darkBorder/60"><p class="text-sm font-bold text-slate-900 dark:text-white">${esc(it.t)}</p>${it.d ? `<p class="mt-1 ${UI.text}">${esc(it.d)}</p>` : ""}</li>`;
+          return `<li class="p-3 rounded-lg border border-slate-100 dark:border-brand-darkBorder/60"><p class="text-sm font-bold text-slate-900 dark:text-white">${esc(it.t)}</p>${it.d ? `<div class="mt-1 ${UI.text}">${formatRichText(it.d)}</div>` : ""}</li>`;
         }).join("");
         return `<ol data-panel-group="${groupId}" data-panel="${tb.key}" class="${i === 0 ? '' : 'hidden'} space-y-2 list-none" role="tabpanel">${items}</ol>`;
       }).join("");
@@ -1664,7 +1730,7 @@
               <span class="text-sm font-semibold text-slate-900 dark:text-white">${esc(r.doc)}</span>
               <span class="text-[10px] font-mono px-2 py-1 rounded bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue">${esc(pic)}</span>
             </div>
-            ${r.note ? `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">${esc(r.note)}</p>` : ""}
+            ${r.note ? `<div class="mt-1 text-xs text-slate-500 dark:text-slate-400">${formatRichText(r.note)}</div>` : ""}
           </li>`;
         }).join("");
         return `<ul data-panel-group="${groupId}" data-panel="${tb.key}" class="${i === 0 ? '' : 'hidden'} divide-y divide-slate-100 dark:divide-brand-darkBorder" role="tabpanel">${rows}</ul>`;
@@ -1686,7 +1752,7 @@
         return `<div class="${UI.card} p-5 flex-1">
           ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl mb-2">${c.icon}</span>` : ""}
           <p class="text-base font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
-          ${c.desc ? `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">${esc(c.desc)}</p>` : ""}
+          ${c.desc ? `<div class="mt-1 text-xs text-slate-500 dark:text-slate-400">${formatRichText(c.desc)}</div>` : ""}
           ${items ? `<ul class="mt-3">${items}</ul>` : ""}
         </div>`;
       }).join("");
@@ -1723,7 +1789,7 @@
             }
             return `<li class="${UI.card} p-3 flex items-center gap-3"><span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-sm">description</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it)}</span></li>`;
           }
-          return `<li class="${UI.card} p-3"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-sm">description</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it.doc)}</span></div>${it.note ? `<p class="mt-1 ml-8 text-[10px] text-slate-500 dark:text-slate-400">${esc(it.note)}</p>` : ""}</li>`;
+          return `<li class="${UI.card} p-3"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-sm">description</span><span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">${esc(it.doc)}</span></div>${it.note ? `<div class="mt-1 ml-8 text-[10px] text-slate-500 dark:text-slate-400">${formatRichText(it.note)}</div>` : ""}</li>`;
         }).join("");
         return `<ol data-panel-group="${groupId}" data-panel="${tb.key}" class="${i === 0 ? '' : 'hidden'} grid grid-cols-1 sm:grid-cols-2 gap-2.5" role="tabpanel">${items}</ol>`;
       }).join("");
@@ -1958,7 +2024,7 @@
             <div class="shrink-0 w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-sm">${esc(num)}</div>
             <div class="flex-1 pt-1">
               <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(st.title)}</p>
-              ${st.desc ? `<p class="mt-1 ${UI.text}">${esc(st.desc)}</p>` : ""}
+              ${st.desc ? `<div class="mt-1 ${UI.text}">${formatRichText(st.desc)}</div>` : ""}
             </div>
           </li>`;
       }).join("");
@@ -1995,7 +2061,7 @@
                 ${(s.rows || []).map(r => `
                   <tr class="border-b border-slate-100 dark:border-brand-darkBorder/60 last:border-0">
                     <td class="p-3 text-xs font-bold text-slate-700 dark:text-slate-300">${esc(r.label || "")}</td>
-                    ${cols.map(c => `<td class="p-3 text-xs sm:text-sm ${highlight === c.key ? 'bg-brand-primary/5 dark:bg-brand-lightBlue/5' : ''} text-slate-700 dark:text-slate-300">${(r.cells && r.cells[c.key]) || ""}</td>`).join("")}
+                    ${cols.map(c => `<td class="p-3 text-xs sm:text-sm ${highlight === c.key ? 'bg-brand-primary/5 dark:bg-brand-lightBlue/5' : ''} text-slate-700 dark:text-slate-300">${formatRichText((r.cells && r.cells[c.key]) || "")}</td>`).join("")}
                   </tr>`).join("")}
               </tbody>
             </table>
@@ -2016,7 +2082,7 @@
             </span>
             <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
           </summary>
-          <div class="px-4 pb-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">${it.a || ""}</div>
+          <div class="px-4 pb-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">${formatRichText(it.a || "")}</div>
         </details>`).join("");
       return `
         <div class="max-w-3xl mx-auto space-y-3">
@@ -2617,6 +2683,15 @@
       `).join('');
     }
 
+    function initTerminologi() {
+      if (COURSE && COURSE.glossary && COURSE.glossary.length) {
+        const badge = document.getElementById("terminologiBadgeCount");
+        if (badge) badge.textContent = COURSE.glossary.length;
+        const footer = document.getElementById("terminologiFooterCount");
+        if (footer) footer.textContent = `Total ${COURSE.glossary.length} Terminologi Resmi Poin 4 WI`;
+      }
+    }
+
     // ========================================================================
     // MODAL HINT CONTROLLER
     // ========================================================================
@@ -2808,14 +2883,19 @@
 
 
     function updateTranscriptAndCC() {
-      const slideDef = COURSE.slides[state.currentSlide];
-      const narr = (slideDef && slideDef.narration)
-        || (COURSE.narration && (COURSE.narration[String(state.currentSlide)] || COURSE.narration[state.currentSlide]))
-        || "Transkrip belum tersedia.";
+      const slideDef = (COURSE.slides && COURSE.slides[state.currentSlide]) || {};
+      const unit = (COURSE.units && COURSE.units[state.currentSlide]) || {};
+      let narr = (slideDef && slideDef.narration)
+        || (COURSE.narration && (COURSE.narration[String(state.currentSlide)] || COURSE.narration[state.currentSlide]));
+      
+      if (!narr || !String(narr).trim()) {
+        narr = generateFallbackNarration(slideDef, unit);
+      }
+
       const notes = document.getElementById("notesTextContainer");
       const cap = document.getElementById("captionText");
-      if (notes) notes.innerHTML = `<p class="text-xs leading-relaxed text-slate-600 dark:text-slate-400">${narr}</p>`;
-      if (cap) cap.innerText = narr;
+      if (notes) notes.innerHTML = `<div class="text-xs leading-relaxed text-slate-700 dark:text-slate-300 space-y-2">${formatRichText(narr)}</div>`;
+      if (cap) cap.innerText = String(narr).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
     }
 
 
@@ -3316,6 +3396,7 @@
 window.addEventListener("DOMContentLoaded", () => {
       applyTheme();
       initCheatSheet();
+      initTerminologi();
       initHintTips();
       initResources();
       goToSlide(0);
@@ -3353,7 +3434,7 @@ window.addEventListener("DOMContentLoaded", () => {
           ${c.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-xl shrink-0">${c.icon}</span>` : ""}
           <div>
             <p class="text-sm font-bold text-slate-900 dark:text-white">${esc(c.title)}</p>
-            ${c.desc ? `<p class="mt-1 ${UI.text}">${esc(c.desc)}</p>` : ""}
+            ${c.desc ? `<div class="mt-1 ${UI.text}">${formatRichText(c.desc)}</div>` : ""}
           </div>
         </div>`).join("");
     }
@@ -3369,7 +3450,7 @@ window.addEventListener("DOMContentLoaded", () => {
             ${r.icon ? `<span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue text-base">${r.icon}</span>` : ""}
             <p class="text-xs font-bold text-slate-900 dark:text-white">${esc(r.title)}</p>
           </div>
-          ${r.desc ? `<p class="mt-1 ${UI.text}">${esc(r.desc)}</p>` : ""}
+          ${r.desc ? `<div class="mt-1 ${UI.text}">${formatRichText(r.desc)}</div>` : ""}
           ${r.items && r.items.length ? `<ul class="mt-2 space-y-1 list-disc list-inside ${UI.text}">${r.items.map(it => `<li>${esc(it)}</li>`).join("")}</ul>` : ""}
         </div>`).join("")}</div>`;
     }

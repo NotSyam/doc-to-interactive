@@ -75,13 +75,17 @@ Construct the JSON following `assets/content.schema.json`. Key rules:
 
 1. **units[] and slides[] MUST have the same length** — `units[N]` is the sidebar entry for `slides[N]`.
 2. **Each slide.type** must be one of the 18 supported types. Per-type required fields are in `references/slide_types.md`.
-3. **narration** is optional but recommended — drives both the CC dock and the sidebar Notes tab. Key is the slide index as a STRING (e.g., `"0"`, `"1"`).
-4. **glossary**, **tenggatCheatSheet**, **hintTips**, **resources** are all optional — omit if the module doesn't need them.
-5. **brand** block: either `{"preset": "name"}` (resolves from `brand.profiles.json`) OR `{"preset": "custom", ...inline fields}`.
+3. **Rich Text Formatting**: Fields `desc`, `lead`, `body`, `note`, `a` natively support Safe HTML (`<strong>`, `<em>`, `<br>`, `<code>`, `<span>`) and Markdown (`**bold**`, `*italic*`, `\n`). Avoid escaping HTML tags manually.
+4. **Narration Script (Wajib & Otomatis)**: Masukkan naskah audio verbatim di field `narration` pada setiap elemen `slides[N]` atau di top-level object `narration: {"0": "...", "1": "..."}`. Naskah ini menggerakkan:
+   - Tab **Transkrip Narasi** di sidebar
+   - Dock **Closed Captions (CC)**
+   - Generator suara **Edge-TTS**
+5. **glossary**, **tenggatCheatSheet**, **hintTips**, **resources** are all optional — omit if the module doesn't need them.
+6. **brand** block: either `{"preset": "name"}` (resolves from `brand.profiles.json`) OR `{"preset": "custom", ...inline fields}`.
 
 ### Step 4 — Save content.json
 
-Save to `/home/z/my-project/scripts/<module-name>.content.json` (NOT in the skill directory — keep the skill clean).
+Save to `<project-dir>/content.json` (keep the skill directory clean).
 
 ### Step 5 — Validate
 
@@ -91,18 +95,36 @@ python3 <skill-root>/scripts/validate_content.py <content.json>
 
 Must exit with code 0 and print `✓ Valid!`. Fix any errors before proceeding.
 
-### Step 6 — Build
+### Step 6 — Generate Audio Narration (Edge-TTS)
+
+Untuk memproduksi file audio MP3 alami dengan aksen korporat profesional:
+
+```bash
+python3 <skill-root>/scripts/generate_audio.py \
+  --content <content.json> \
+  --output-dir <project-dir>/audio \
+  --voice id-ID-ArdiNeural \
+  --rate -4%
+```
+
+Skrip ini otomatis menerapkan:
+- **Phonetic Respelling**: Membaca singkatan SOP, ISO, LMS, istilah asing, dan terminologi BUMN secara fasih.
+- **Auto-fallback**: Jika slide belum memiliki field `narration`, skrip akan mengekstrak naskah intisari dari judul dan kartu materi.
+
+### Step 7 — Build Module HTML
 
 ```bash
 python3 <skill-root>/scripts/build_module.py \
   --content <content.json> \
-  --output /home/z/my-project/download/<module-name>.html \
+  --output <project-dir>/index.html \
   --validate
 ```
 
 The build script:
 1. Injects `content.json` as the `COURSE` object literal into the template.
-2. Resolves the brand preset and applies the brand's hex colors to the Tailwind config + CSS rules (every brand color token gets overridden).
+2. Resolves the brand preset and applies the brand's hex colors to the Tailwind config + CSS rules.
+3. Replaces all placeholders and renders rich text.
+4. Writes the final self-contained HTML.
 3. Replaces all `__COURSE_*__` and `__CERT_*__` placeholders with concrete values.
 4. Writes the final HTML to the user-facing `download/` directory.
 

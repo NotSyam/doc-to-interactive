@@ -237,14 +237,26 @@ Jika Anda memiliki data dalam format JSON (`kursus.json`):
    ```bash
    python scripts/validate_content.py kursus.json
    ```
-2. **Kompilasi ke HTML Mandiri**:
+2. **Produksi Audio Narasi Edge-TTS (Opsional tapi Direkomendasikan)**:
+   ```bash
+   python scripts/generate_audio.py \
+     --content kursus.json \
+     --output-dir dist/audio \
+     --voice id-ID-ArdiNeural \
+     --rate -4%
+   ```
+   *Skrip otomatis membaca naskah `narration` dari tiap slide, menerapkan kamus fonetis korporat/istilah teknis, dan menghasilkan audio `unit_0.mp3`, `unit_1.mp3`, dst.*
+
+3. **Kompilasi ke HTML Mandiri**:
    ```bash
    python scripts/build_module.py \
      --content kursus.json \
      --output dist/kursus_interaktif.html \
      --validate
    ```
-3. Buka file `dist/kursus_interaktif.html` di browser Anda!
+   *Mendukung Rich Text (Safe HTML: `<strong>`, `<br>`, `<em>` serta Markdown: `**bold**`, `*italic*`, `\n`) secara otomatis tanpa merusak simbol pembanding matematika.*
+
+4. Buka file `dist/kursus_interaktif.html` di browser Anda!
 
 ---
 
