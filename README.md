@@ -35,30 +35,61 @@ Hasil akhir berupa **satu file `.html` mandiri (standalone)** yang dapat langsun
 
 ## 🚀 Cara Menggunakan (Usage Guide)
 
-Ada 2 cara praktis untuk menggunakan builder ini:
-1. **Bersama AI Agent (Rekomendasi)**: Menggunakan Claude Code, Gemini CLI, atau Google Antigravity Agent.
-2. **Secara Manual via CLI Python**: Menggunakan skrip `build_module.py` dan format `content.json`.
+Kekuatan utama dari skill **Doc-to-Interactive** adalah kemudahannya: **Anda TIDAK perlu menulis kode JSON rumit atau konfigurasi teknis yang panjang.**
+
+Cukup lampirkan dokumen materi asli (PDF/Word/SOP) dan berikan **daftar outline topik sederhana**, AI Agent yang ditenagai skill ini akan otomatis menganalisis isi dokumen, memilih tipe slide interaktif yang paling cocok (flowchart, kartu, matriks, kuis, sertifikat), dan mengompilasinya menjadi modul web interaktif siap pakai.
 
 ---
 
-### Alur 1: Menggunakan AI Agent (Prompting)
+### Alur 1: Input Nyata Pengguna (Sederhana & Cepat) 🔥
 
-1. Pasang skill ini di direktori konfigurasi AI Agent Anda (misal `~/.gemini/config/skills/doc-to-interactive/` atau `~/.claude/skills/doc-to-interactive/`).
-2. Lampirkan dokumen materi Anda (PDF, Word, Markdown, atau teks mentah).
-3. Berikan prompt instruksi:
-   ```text
-   /doc-to-interactive
-   "Tolong konversi dokumen SOP terlampir menjadi modul e-learning interaktif 12 slide. 
-   Gunakan brand corporate, tambahkan kuis 5 soal dengan passing grade 80, 
-   dan terapkan slide gating timer 10 detik per slide."
-   ```
-4. AI Agent akan menganalisis dokumen dan menyusun **Slide Breakdown Terstruktur** untuk Anda review sebelum file HTML final dikompilasi.
+Berikut adalah contoh teks prompt yang benar-benar digunakan untuk memproduksi modul **[Work Instruction Pelatihan Rev-2](https://notsyam.github.io/wi-pelatihan-rev2/)**:
+
+#### 📄 Prompt Input Pengguna:
+> *"Tolong buatkan modul e-learning interaktif dari dokumen SOP Pelatihan terlampir (PDF) dengan susunan berikut:*
+> 
+> *Catatan: Menu Terminologi berada di samping Hint/Navigasi berisikan Definisi yang ada di Poin 4.*  
+> 
+> - *Halaman 0 : Pendahuluan*  
+> - *1 : Maksud dan Tujuan, Ruang Lingkup*  
+> - *2 : Referensi*  
+> - *3 : Alur Proses 5.1 Learning Needs Diagnostic*  
+> - *4 : Alur Proses 5.2 Learning Design & Development*  
+> - *5 : Alur Proses 5.3 Learning Delivery & Deployment*  
+> - *6 : Alur Proses 5.4 Learning Impact Measurement*  
+> - *7 : Ketentuan Umum 6.1.1 sampai 6.1.3*  
+> - *8 : Ketentuan Umum 6.2.1 sampai 6.2.6*  
+> - *9 : Ketentuan Umum 6.3.1 sampai 6.3.6*  
+> - *10 : Ketentuan Umum 6.4.1 sampai 6.4.4*  
+> - *11 : Dokumen Terkait*  
+> - *12 : Record*  
+> - *13 : Lampiran*  
+> - *14 : Performance Measurement*  
+> - *15 : Identifikasi Potential Risk*  
+> - *16 : Kuis 10 Soal*  
+> - *17 : Penutup & Sertifikat"*
+
+#### 🧠 Apa yang Dilakukan AI Agent (Skill Engine) Secara Otomatis:
+1. **Membaca Dokumen Sumber (PDF/Word)** secara mendalam.
+2. **Pemetaan Cerdas ke 18 Tipe Slide**:
+   - Poin 0 $\rightarrow$ `cover` (Hero title, nomor SOP, badge tanggal berlaku, CTA mulai).
+   - Poin 1 & 2 $\rightarrow$ `cardList` / `twoCardAccordion` (Maksud, tujuan, ruang lingkup).
+   - Poin 3–6 (Alur Proses) $\rightarrow$ `treeCanvas` (Flowchart canvas interaktif, filter peran pelaksana, hotspot modal).
+   - Poin 7–10 (Ketentuan Umum) $\rightarrow$ `tabbedAccordion` (Pemisahan tab terstruktur agar materi nyaman dibaca).
+   - Poin 11–13 $\rightarrow$ `docTabs` / `verificationMatrix` (Daftar dokumen & formulir terkontrol).
+   - Poin 14 $\rightarrow$ `kpiDashboard` (Metrik kuantitatif & target evaluasi).
+   - Poin 15 $\rightarrow$ `riskCards` (Identifikasi risiko & mitigasi operasional).
+   - Poin 16 $\rightarrow$ `quiz` (10 soal evaluasi dengan identitas peserta, acak opsi & batas 5 attempt).
+   - Poin 17 $\rightarrow$ `summaryCertificate` (Generator sertifikat resmi A4 landscape).
+3. **Mengekstrak Terminologi (Poin 4)** ke dalam modal glossary interaktif.
+4. **Menerapkan Gate Timer 10 Detik** di setiap slide dan integrasi webhook Google Sheets.
+5. **Mengompilasi** menjadi satu file `index.html` mandiri tanpa dependensi luar!
 
 ---
 
-### Alur 2: Format Teks Input Breakdown Materi
+### Alur 2: Format Structured Bullets (Bagi yang Ingin Kontrol Granular)
 
-Jika Anda ingin menentukan sendiri urutan dan jenis interaksi pada tiap slide secara presisi, gunakan format **Structured Bullets** berikut:
+Jika Anda tidak melampirkan dokumen PDF atau ingin menentukan sendiri teks setiap kartu/tombol secara eksplisit, Anda dapat menggunakan format **Structured Bullets**:
 
 #### 📋 Template Standar Per Slide:
 ```markdown
