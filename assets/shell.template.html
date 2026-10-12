@@ -1138,15 +1138,31 @@
           nextText.innerText = "Cetak Sertifikat";
           nextBtn.onclick = () => printCertificate();
           nextBtn.disabled = false;
+          nextBtn.classList.remove("opacity-40", "cursor-not-allowed");
+          nextBtn.classList.add("cursor-pointer", "btn-next-ready");
         } else {
           nextText.innerText = "Selesai";
           nextBtn.onclick = null;
           nextBtn.disabled = true;
+          nextBtn.classList.add("opacity-40", "cursor-not-allowed");
+          nextBtn.classList.remove("cursor-pointer", "btn-next-ready");
         }
       } else {
-        nextText.innerText = "Lanjut";
         nextBtn.onclick = goToNextSlide;
-        nextBtn.disabled = false;
+        // Hanya aktifkan tombol jika gate timer tidak sedang aktif atau slide sudah selesai dipelajari
+        const gatingEnabled = COURSE.course.enableGatingTimer !== false;
+        const isLockedByGate = gatingEnabled && state.isGateTimerActive && !state.completedSlides.has(state.currentSlide);
+        if (isLockedByGate) {
+          nextBtn.disabled = true;
+          nextBtn.classList.add("opacity-40", "cursor-not-allowed");
+          nextBtn.classList.remove("cursor-pointer", "btn-next-ready");
+          if (nextText) nextText.innerText = `Tunggu (${state.slideGateSecondsLeft}s)`;
+        } else {
+          nextBtn.disabled = false;
+          nextBtn.classList.remove("opacity-40", "cursor-not-allowed");
+          nextBtn.classList.add("cursor-pointer", "btn-next-ready");
+          if (nextText) nextText.innerText = "Lanjut";
+        }
       }
     }
 
@@ -2403,13 +2419,35 @@
     }
 
     // ========================================================================
+    // CLOSED CAPTIONS TOGGLE CONTROLLER
+    // ========================================================================
+    function toggleCC() {
+      playTone('click');
+      const dock = document.getElementById("captionDock");
+      const btn = document.getElementById("btnCCToggle");
+      if (!dock) return;
+      const isOpen = !dock.classList.contains("max-h-0");
+      if (isOpen) {
+        dock.classList.add("max-h-0", "opacity-0", "pointer-events-none");
+        dock.classList.remove("max-h-24", "opacity-100");
+        if (btn) btn.classList.remove("text-brand-primary", "dark:text-brand-lightBlue");
+      } else {
+        dock.classList.remove("max-h-0", "opacity-0", "pointer-events-none");
+        dock.classList.add("max-h-24", "opacity-100");
+        if (btn) btn.classList.add("text-brand-primary", "dark:text-brand-lightBlue");
+      }
+    }
+
+    // ========================================================================
     // SWIMLANE HOTSPOT MODAL OPENER (HALAMAN 2)
     // ========================================================================
     function openSwimlaneHotspot(itemId) {
       playTone('click');
       let found = null;
-      for (const lane of (slide.swimlaneData || [])) {
-        for (const item of lane.items) {
+      const currentSlideDef = (COURSE.slides && COURSE.slides[state.currentSlide]) || {};
+      const swimlanes = currentSlideDef.swimlaneData || (COURSE.slides || []).find(s => s.type === 'treeCanvas')?.swimlaneData || [];
+      for (const lane of swimlanes) {
+        for (const item of (lane.items || [])) {
           if (item.id === itemId) {
             found = item;
             break;
