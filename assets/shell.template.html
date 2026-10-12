@@ -961,16 +961,20 @@
       if (slideIndex < 0 || slideIndex >= COURSE.units.length) return;
       
       // Gating khusus slide sertifikat / penutup jika ada kuis
-      const certSlideIndex = COURSE.units.length - 1;
+      const certIdx = (COURSE.slides || []).findIndex(s => s.type === 'summaryCertificate');
+      const certSlideIndex = certIdx !== -1 ? certIdx : (COURSE.units.length - 1);
       const hasQuiz = (COURSE.slides || []).some(s => s.type === 'quiz');
       const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
-      if (hasQuiz && slideIndex === certSlideIndex && (!state.quizPassed || state.quizScore < passingScore)) {
+      if (hasQuiz && (slideIndex === certSlideIndex || slideIndex >= certSlideIndex) && (!state.quizPassed || state.quizScore < passingScore)) {
         playTone('error');
         alert(`Halaman Penutup & Sertifikat masih terkunci! Anda wajib menyelesaikan Kuis Evaluasi dengan nilai minimal ${passingScore} terlebih dahulu.`);
         return;
       }
 
-      if (!COURSE.course.devMode && !state.completedSlides.has(slideIndex) && slideIndex > state.currentSlide && !state.completedSlides.has(slideIndex - 1)) {
+      // Jika kuis sudah lulus dan ini navigasi ke slide berikutnya atau slide sertifikat, izinkan transisi
+      const isQuizPassedTransit = state.quizPassed && (slideIndex === state.currentSlide + 1 || slideIndex === certSlideIndex);
+
+      if (!COURSE.course.devMode && !isQuizPassedTransit && !state.completedSlides.has(slideIndex) && slideIndex > state.currentSlide && !state.completedSlides.has(slideIndex - 1)) {
         playTone('error');
         alert("Selesaikan materi sebelumnya terlebih dahulu!");
         return;
@@ -978,7 +982,7 @@
 
       // Cek apakah slide saat ini masih terkunci oleh timer gating
       const gatingEnabled = COURSE.course.enableGatingTimer !== false;
-      if (gatingEnabled && state.isGateTimerActive && slideIndex > state.currentSlide && !state.completedSlides.has(state.currentSlide)) {
+      if (gatingEnabled && state.isGateTimerActive && !isQuizPassedTransit && slideIndex > state.currentSlide && !state.completedSlides.has(state.currentSlide)) {
         playTone('error');
         alert(`Harap pelajari materi slide saat ini terlebih dahulu! Kunci akan terbuka dalam ${state.slideGateSecondsLeft} detik.`);
         return;
@@ -2222,7 +2226,9 @@
       const passed = pct >= passingScore;
       const remainingAttempts = Math.max(0, maxAttempts - state.quizAttemptCount);
       const isMaxReached = state.quizAttemptCount >= maxAttempts && !passed;
-      const certSlideIndex = COURSE.units.length - 1;
+      const certIdx = (COURSE.slides || []).findIndex(s => s.type === 'summaryCertificate');
+      const certSlideIndex = certIdx !== -1 ? certIdx : (COURSE.units.length - 1);
+      const nextSlideIndex = (state.currentSlide + 1 < COURSE.units.length) ? state.currentSlide + 1 : certSlideIndex;
 
       // Accordion Details Style (SOP Pemeliharaan Penutupan Proyek)
       const reviewDetails = qs.map((q, qi) => {
@@ -2283,7 +2289,7 @@
                   Ulangi Kuis (Sisa ${remainingAttempts}x)
                 </button>` : ""}
               ${passed ? `
-                <button onclick="goToSlide(${certSlideIndex})" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold btn-tactile cursor-pointer shadow flex items-center gap-1.5">
+                <button onclick="goToSlide(${nextSlideIndex})" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold btn-tactile cursor-pointer shadow flex items-center gap-1.5">
                   <span>Lanjut ke Penutup & Sertifikat</span>
                   <span class="material-symbols-outlined text-base">arrow_forward</span>
                 </button>` : ""}
@@ -2360,6 +2366,12 @@
       state.quizCompleted = true;
 
       if (state.quizPassed) {
+        state.completedSlides.add(state.currentSlide);
+        if (COURSE.units && COURSE.units[state.currentSlide]) {
+          COURSE.units[state.currentSlide].completed = true;
+        }
+        state.isGateTimerActive = false;
+        state.slideGateSecondsLeft = 0;
         playTone('fanfare');
         try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch (e) {}
       } else {
@@ -2763,11 +2775,13 @@
       container.innerHTML = COURSE.units.map((u, idx) => {
         const isCurrent = idx === state.currentSlide;
         const isCompleted = state.completedSlides && state.completedSlides.has(idx);
-        const isCertSlide = idx === COURSE.units.length - 1;
+        const certIdx = (COURSE.slides || []).findIndex(s => s.type === 'summaryCertificate');
+        const certSlideIndex = certIdx !== -1 ? certIdx : (COURSE.units.length - 1);
+        const isCertSlide = (idx === certSlideIndex || idx >= certSlideIndex);
         const hasQuiz = (COURSE.slides || []).some(s => s.type === 'quiz');
         const passingScore = (COURSE.course && COURSE.course.passingScore) || 80;
         const certUnlocked = !hasQuiz || (state.quizPassed && state.quizScore >= passingScore);
-        const isUnlocked = COURSE.course.devMode || (isCertSlide ? certUnlocked : (isCompleted || idx <= state.currentSlide + 1));
+        const isUnlocked = COURSE.course.devMode || (isCertSlide ? certUnlocked : (isCompleted || idx <= state.currentSlide + 1 || (state.quizPassed && idx > state.currentSlide)));
 
         let iconColor = isCurrent ? "text-brand-primary dark:text-brand-lightBlue" : (isCompleted ? "text-brand-primary" : "text-slate-400");
         let activeBg = isCurrent ? "bg-brand-primary/10 dark:bg-brand-darkSubtle border-l-4 border-brand-primary dark:border-brand-lightBlue" : "hover:bg-slate-100 dark:hover:bg-brand-darkSubtle/60";
